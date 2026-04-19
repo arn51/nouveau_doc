@@ -1,0 +1,59 @@
+name: Validation des documents
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer jq
+        run: sudo apt-get install -y jq
+
+      - name: Donner les droits d'exécution
+        run: chmod +x bin/nouveau_doc
+
+      - name: Exécuter la validation complète
+        id: validation
+        run: |
+          bin/nouveau_doc --ci-report-all
+        continue-on-error: true
+
+      - name: Résumé Markdown
+        if: always()
+        run: |
+          echo "## Résultats des tests" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload des rapports CI
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports-ci
+          path: |
+            report.json
+            report.md
+            report.junit.xml
+
+      - name: Upload des badges
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: badges
+          path: |
+            tests_badge.json
+            tests_badge.svg
+            tests_badge_extended.svg
+            tests_badge_from_json.svg
+            tests_badge_extended_from_json.svg
+
+      - name: Échec si tests KO
+        if: steps.validation.outcome == 'failure'
+        run: exit 1

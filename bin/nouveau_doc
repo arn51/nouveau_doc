@@ -1,0 +1,230 @@
+#!/usr/bin/env bash
+####set -x
+# --- Force l'exécution sous bash ---
+if [ -z "$BASH_VERSION" ]; then
+    exec /usr/bin/env bash "$0" "$@"
+fi
+
+# --- Empêche le sourcing ---
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+    echo "Erreur : nouveau_doc ne doit pas être sourcé."
+    echo "Utilisez simplement : nouveau_doc \"Titre du document\""
+    return 1 2>/dev/null || exit 1
+fi
+
+########################################
+# 0) Définition des constantes
+########################################
+
+VISUAL_MODE="crt"      # ou "matrix", "glitch", "minimal"
+
+RULES_DIR="$HOME/.config/nouveau_doc/rules"
+PLUGINS_DIR="$HOME/.config/nouveau_doc/plugins"
+CONFIG_DIR="$HOME/.config/nouveau_doc/config"
+PROFILES_DIR="$HOME/.config/nouveau_doc/profiles"
+
+#############################################
+#   1) Chargement du moteur complet
+#############################################
+
+source "$HOME/.local/bin/rules_engine/00_loader.sh"
+
+#############################################
+#   2) Commandes spéciales (avant cli_parse)
+#############################################
+
+if [[ "$1" == "--ai-profile" ]]; then
+    modules_load
+    ai_build_profile 2>/dev/null || true
+    ai_profile
+    exit 0
+fi
+
+#############################################
+#   3) Parsing des options CLI
+#############################################
+
+cli_parse "$@"
+
+#############################################
+#   4) Chargement des modules AVANT le contexte
+#############################################
+
+modules_load
+
+#############################################
+#   5) Contexte
+#############################################
+
+hook_run pre_context
+context_init
+hook_run post_context
+
+#############################################
+#   6) Chargement des plugins + règles
+#############################################
+
+hook_run pre_plugins
+plugins_load
+hook_run post_plugins
+
+hook_run pre_rules
+rules_load_all
+hook_run post_rules
+
+####echo "[DEBUG CORE] rules_load_all appelé" >&2
+####echo "[DEBUG CORE] RULES_RAW après load_all : ${RULES_RAW[*]}" >&2
+####echo "[DEBUG CORE] POSTFIXES après load_all : ${POSTFIXES[*]}" >&2
+
+#############################################
+#   7) Sélection de la règle active
+#############################################
+
+# On prend la première règle pour l’instant
+if (( ${#POSTFIXES[@]} > 0 )); then
+    IFS=' ' read -r -a POSTFIX <<< "${POSTFIXES[0]}"
+else
+    POSTFIX=()
+fi
+
+#############################################
+#   8) Construction de l’arbre logique
+#############################################
+
+hook_run pre_tree
+####echo "Arbres logiques :"
+
+####for rule in "${POSTFIXES[@]}"; do
+####    # Convertit la règle postfixée (string) en tableau POSTFIX
+####    IFS=' ' read -r -a POSTFIX <<< "$rule"
+
+####    echo
+####    echo "Règle : $rule"
+####    rules_build_tree
+####done
+
+# Groupes de règles
+declare -a RULES_TYPE RULES_PROFILE RULES_CATEGORY RULES_TEMPLATE RULES_GLOBAL
+
+for rule in "${POSTFIXES[@]}"; do
+    prefix="${rule%%=*}"
+
+    case "$prefix" in
+        DOC_TYPE)  RULES_TYPE+=("$rule") ;;
+        PROFILE)   RULES_PROFILE+=("$rule") ;;
+        CATEGORY)  RULES_CATEGORY+=("$rule") ;;
+        TEMPLATE)  RULES_TEMPLATE+=("$rule") ;;
+        *)         RULES_GLOBAL+=("$rule") ;;
+    esac
+done
+
+display_group() {
+    local title="$1"
+    shift
+    local rules=("$@")
+
+    [[ ${#rules[@]} -eq 0 ]] && return
+
+    echo
+    echo "=== $title ==="
+
+    for rule in "${rules[@]}"; do
+        echo
+        echo "Règle : $rule"
+        IFS=' ' read -r -a POSTFIX <<< "$rule"
+        rules_build_tree
+    done
+}
+
+
+if [[ "$DSL_VERBOSE" == true ]]; then
+    echo "=== RÈGLES PAR GROUPE ==="
+
+    display_group "DOC_TYPE"   "${RULES_TYPE[@]}"
+    display_group "PROFIL"     "${RULES_PROFILE[@]}"
+    display_group "CATÉGORIE"  "${RULES_CATEGORY[@]}"
+    display_group "TEMPLATE"   "${RULES_TEMPLATE[@]}"
+    display_group "GLOBAL"     "${RULES_GLOBAL[@]}"
+
+fi
+
+####root="$(rules_build_tree)"
+####hook_run post_tree
+
+#############################################
+#   Mode résumé : règles vraies
+#############################################
+
+echo
+echo "=== RÉSUMÉ ==="
+
+declare -a TRUE_TYPE TRUE_PROFILE TRUE_CATEGORY TRUE_TEMPLATE TRUE_GLOBAL
+
+for rule in "${POSTFIXES[@]}"; do
+    IFS=' ' read -r -a POSTFIX <<< "$rule"
+
+    # Évalue la règle (une seule ATOM pour l’instant)
+    if rule_eval_atom "${POSTFIX[0]}"; then
+        prefix="${rule%%=*}"
+        case "$prefix" in
+            DOC_TYPE)  TRUE_TYPE+=("$rule") ;;
+            PROFILE)   TRUE_PROFILE+=("$rule") ;;
+            CATEGORY)  TRUE_CATEGORY+=("$rule") ;;
+            TEMPLATE)  TRUE_TEMPLATE+=("$rule") ;;
+            *)         TRUE_GLOBAL+=("$rule") ;;
+        esac
+    fi
+done
+
+summary_group() {
+    local title="$1"
+    shift
+    local rules=("$@")
+
+    [[ ${#rules[@]} -eq 0 ]] && return
+
+    echo
+    echo "• $title :"
+    for r in "${rules[@]}"; do
+        echo "   - $r"
+    done
+}
+
+summary_group "DOC_TYPE"   "${TRUE_TYPE[@]}"
+summary_group "PROFIL"     "${TRUE_PROFILE[@]}"
+summary_group "CATÉGORIE"  "${TRUE_CATEGORY[@]}"
+summary_group "TEMPLATE"   "${TRUE_TEMPLATE[@]}"
+summary_group "GLOBAL"     "${TRUE_GLOBAL[@]}"
+
+
+#############################################
+#   9) Construction de la pile d’évaluation
+#############################################
+
+####hook_run pre_stack
+####STACK_EVAL_CONTENT="$(rules_build_stack)"
+####hook_run post_stack
+
+
+#############################################
+#   10) Mode CRT (palette)
+#############################################
+
+CRT_MODE="green"
+crt_set_mode "$CRT_MODE"
+
+#############################################
+#   11) Affichage CRT
+#############################################
+
+####debug_tree "$root"
+####printf "%b" "\033[0m"
+####stack_eval_crt
+
+#############################################
+#   12) Génération du document final
+#############################################
+
+hook_run pre_document
+document_generate "$TITLE"
+hook_run post_document

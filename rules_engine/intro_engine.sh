@@ -1,0 +1,230 @@
+#############################################
+#   INTRO ENGINE — Animations & Logos
+#############################################
+
+#############################################
+#   INTRO : Windows 95
+#############################################
+
+intro_win95() {
+    clear
+    echo -e "\e[97mStarting Windows 95...\e[0m"
+    sleep 0.8
+    clear
+
+    echo -e "Microsoft(R) Windows 95\n(C) Copyright Microsoft Corp 1981-1995"
+    sleep 0.6
+    echo
+    echo -e "Memory Test: 65536K OK"
+    sleep 0.4
+    echo -e "Keyboard... OK"
+    sleep 0.3
+    echo -e "Mouse..... OK"
+    sleep 0.3
+    echo -e "CD-ROM.... OK"
+    sleep 0.3
+    echo
+    sleep 0.4
+
+    clear
+    echo -e "\e[97mStarting Windows 95...\e[0m"
+    sleep 0.5
+
+    local splash="
+        █     █▀▀▀ █   █ █▀▀█ █▀▀█ █▀▀█ █▀▀▀
+        █     █▀▀  █   █ █▄▄█ █▄▄▀ █▄▄█ █▀▀
+        █▄▄█  █▄▄▄ ▀▄▄▀ █  █  █  █ █  █ █▄▄▄
+
+                     Windows 95
+    "
+
+    for i in {1..3}; do
+        clear
+        echo -e "\e[97m$splash\e[0m"
+        sleep 0.15
+        clear
+        sleep 0.15
+    done
+
+    clear
+    echo -e "\e[97m$splash\e[0m"
+    sleep 0.5
+
+    echo -ne "\nLoading: ["
+    for i in {1..30}; do
+        echo -ne "█"
+        sleep 0.05
+    done
+    echo -e "]"
+    sleep 0.4
+
+    clear
+    echo -e "\e[107m \e[0m"
+    sleep 0.1
+
+    clear
+    echo -e "\e[96m██████╗ ██████╗ ███████╗██╗   ██╗███████╗██████╗ ██╗████████╗███████╗\e[0m"
+    echo -e "\e[96m██╔══██╗██╔══██╗██╔════╝██║   ██║██╔════╝██╔══██╗██║╚══██╔══╝██╔════╝\e[0m"
+    echo -e "\e[96m██████╔╝██████╔╝█████╗  ██║   ██║█████╗  ██████╔╝██║   ██║   ███████╗\e[0m"
+    echo -e "\e[96m██╔══██╗██╔══██╗██╔══╝  ╚██╗ ██╔╝██╔══╝  ██╔══██╗██║   ██║   ╚════██║\e[0m"
+    echo -e "\e[96m██║  ██║██║  ██║███████╗ ╚████╔╝ ███████╗██║  ██║██║   ██║   ███████║\e[0m"
+    echo -e "\e[96m╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝   ╚══════╝\e[0m"
+    echo
+    echo -e "                 \e[92mnouveau_doc — Windows 95 boot complete\e[0m"
+    sleep 0.8
+}
+
+#############################################
+#   INTRO : UEFI
+#############################################
+
+intro_uefi() {
+    clear
+    echo -e "\e[96mUEFI Firmware Interface v3.2\e[0m"
+    sleep 0.2
+    echo -e "© 2026 NouveauDoc Systems. All rights reserved."
+    sleep 0.3
+    echo
+    sleep 0.2
+
+    echo -e "\e[90m[UEFI] Initializing system...\e[0m"
+    sleep 0.3
+    echo -e " • Loading UEFI drivers ............... \e[92mOK\e[0m"
+    sleep 0.15
+    echo -e " • Initializing GOP framebuffer ....... \e[92mOK\e[0m"
+    sleep 0.15
+    echo -e " • Detecting CPU capabilities ......... \e[92mOK\e[0m"
+    sleep 0.15
+    echo -e " • Checking Secure Boot keys .......... \e[92mOK\e[0m"
+    sleep 0.2
+    echo -e " • TPM 2.0 device ...................... \e[92mREADY\e[0m"
+    sleep 0.3
+    echo
+    sleep 0.2
+
+    echo -e "\e[90m[UEFI] Scanning storage volumes...\e[0m"
+    sleep 0.3
+    echo -e " • NVMe0: Samsung 980 PRO ............. \e[92mOK\e[0m"
+    sleep 0.15
+    echo -e " • NVMe1: ASCII Virtual Disk .......... \e[92mOK\e[0m"
+    sleep 0.15
+    echo -e " • FS0: nouveau_doc EFI partition ..... \e[92mFOUND\e[0m"
+    sleep 0.4
+    echo
+    sleep 0.2
+
+    echo -e "\e[90m[UEFI] Loading NouveauDoc Boot Manager...\e[0m"
+    sleep 0.4
+    echo -e " • Verifying signature ................ \e[92mOK\e[0m"
+    sleep 0.2
+    echo -e " • Loading kernel modules ............. \e[92mOK\e[0m"
+    sleep 0.2
+    echo -e " • Initializing runtime services ...... \e[92mOK\e[0m"
+    sleep 0.3
+    echo
+    sleep 0.3
+
+    echo -e "\e[90m[UEFI] Launching NouveauDoc Engine...\e[0m"
+    sleep 0.6
+
+    for i in {1..3}; do
+        clear
+        echo -e "\e[96mStarting...\e[0m"
+        sleep 0.08
+        clear
+        sleep 0.08
+    done
+
+    clear
+    echo -e "\e[96m──────────────────────────────────────────────\e[0m"
+    echo -e "\e[96m              NouveauDoc UEFI Loader          \e[0m"
+    echo -e "\e[96m──────────────────────────────────────────────\e[0m"
+    sleep 0.4
+
+    clear
+    echo -e "\e[96m██████╗ ██████╗ ███████╗██╗   ██╗███████╗██████╗ ██╗████████╗███████╗\e[0m"
+    echo -e "\e[96m██╔══██╗██╔══██╗██╔════╝██║   ██║██╔════╝██╔══██╗██║╚══██╔══╝██╔════╝\e[0m"
+    echo -e "\e[96m██████╔╝██████╔╝█████╗  ██║   ██║█████╗  ██████╔╝██║   ██║   ███████╗\e[0m"
+    echo -e "\e[96m██╔══██╗██╔══██╗██╔══╝  ╚██╗ ██╔╝██╔══╝  ██╔══██╗██║   ██║   ╚════██║\e[0m"
+    echo -e "\e[96m██║  ██║██║  ██║███████╗ ╚████╔╝ ███████╗██║  ██║██║   ██║   ███████║\e[0m"
+    echo -e "\e[96m╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝   ╚══════╝\e[0m"
+    echo
+    echo -e "                 \e[92mnouveau_doc — UEFI boot sequence complete\e[0m"
+    sleep 0.8
+}
+
+#############################################
+#   INTRO : BIOS
+#############################################
+
+intro_bios() {
+    clear
+    echo -e "\e[92mPhoenixBIOS 4.0 Release 6.0\e[0m"
+    sleep 0.3
+    echo -e "Copyright (C) 1985-2026 Phoenix Technologies Ltd."
+    sleep 0.3
+    echo
+    sleep 0.3
+
+    echo -e "CPU: \e[96mAMD ASCII-Core 5.2GHz\e[0m"
+    sleep 0.2
+    echo -e "Memory Test: 65536K OK"
+    sleep 0.2
+    echo -e "L1 Cache: 64K  OK"
+    sleep 0.2
+    echo -e "L2 Cache: 256K OK"
+    sleep 0.2
+    echo -e "L3 Cache: 8M   OK"
+    sleep
+    echo -e "Detecting storage devices..."
+    sleep 0.4
+    echo -e "  > /dev/sda  ..........  OK"
+    sleep 0.2
+    echo -e "  > /dev/sdb  ..........  OK"
+    sleep 0.2
+    echo -e "  > /dev/nouveau_doc  ..  \e[92mFOUND\e[0m"
+    sleep 0.4
+    echo
+    sleep 0.3
+
+    echo -e "Loading system modules..."
+    sleep 0.3
+    echo -e "  > markdown.engine        [\e[92mOK\e[0m]"
+    sleep 0.15
+    echo -e "  > template.selector      [\e[92mOK\e[0m]"
+    sleep 0.15
+    echo -e "  > profile.autoload       [\e[92mOK\e[0m]"
+    sleep 0.15
+    echo -e "  > auto.rules             [\e[92mOK\e[0m]"
+    sleep 0.15
+    echo -e "  > typora.launcher        [\e[92mOK\e[0m]"
+    sleep 0.3
+    echo
+    sleep 0.3
+
+    echo -e "Boot sequence complete."
+    sleep 0.4
+    echo -e "Starting \e[96mnouveau_doc\e[0m engine..."
+    sleep 0.8
+
+    # Petit effet CRT
+    for i in {1..3}; do
+        clear
+        echo -e "\e[92mBOOTING...\e[0m"
+        sleep 0.05
+        clear
+        sleep 0.05
+    done
+
+    # Logo final
+    clear
+    echo -e "\e[96m██████╗ ██████╗ ███████╗██╗   ██╗███████╗██████╗ ██╗████████╗███████╗\e[0m"
+    echo -e "\e[96m██╔══██╗██╔══██╗██╔════╝██║   ██║██╔════╝██╔══██╗██║╚══██╔══╝██╔════╝\e[0m"
+    echo -e "\e[96m██████╔╝██████╔╝█████╗  ██║   ██║█████╗  ██████╔╝██║   ██║   ███████╗\e[0m"
+    echo -e "\e[96m██╔══██╗██╔══██╗██╔══╝  ╚██╗ ██╔╝██╔══╝  ██╔══██╗██║   ██║   ╚════██║\e[0m"
+    echo -e "\e[96m██║  ██║██║  ██║███████╗ ╚████╔╝ ███████╗██║  ██║██║   ██║   ███████║\e[0m"
+    echo -e "\e[96m╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝   ╚══════╝\e[0m"
+    echo
+    echo -e "                 \e[92mnouveau_doc — BIOS boot sequence complete\e[0m"
+    sleep 0.8
+}
