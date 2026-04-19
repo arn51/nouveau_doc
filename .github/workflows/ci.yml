@@ -21,6 +21,8 @@ jobs:
 
       - name: Exécuter la validation complète
         id: validation
+        env:
+          NOUVEAU_DOC_ROOT: ${{ github.workspace }}
         run: |
           bin/nouveau_doc --ci-report-all
         continue-on-error: true
