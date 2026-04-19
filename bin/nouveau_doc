@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 ####set -x
-# Mode CI : utiliser les fichiers du dépôt
+
+# --- Mode CI GitHub Actions ---
 if [[ -n "$NOUVEAU_DOC_ROOT" ]]; then
     export RULES_ENGINE_DIR="$NOUVEAU_DOC_ROOT/rules_engine"
     export RULES_DIR="$NOUVEAU_DOC_ROOT/rules"
     export TEMPLATES_DIR="$NOUVEAU_DOC_ROOT/templates"
     export SNIPPETS_DIR="$NOUVEAU_DOC_ROOT/snippets"
+
+    # Optionnel : désactiver les animations, intros, effets CRT en CI
+    export NOUVEAU_DOC_CI=1
 fi
 
 # --- Force l'exécution sous bash ---
@@ -26,10 +30,10 @@ fi
 
 VISUAL_MODE="crt"      # ou "matrix", "glitch", "minimal"
 
-RULES_DIR="$HOME/.config/nouveau_doc/rules"
-PLUGINS_DIR="$HOME/.config/nouveau_doc/plugins"
-CONFIG_DIR="$HOME/.config/nouveau_doc/config"
-PROFILES_DIR="$HOME/.config/nouveau_doc/profiles"
+RULES_ENGINE_DIR="${RULES_ENGINE_DIR:-$HOME/.local/bin/rules_engine}"
+RULES_DIR="${RULES_DIR:-$HOME/.config/nouveau_doc/rules}"
+TEMPLATES_DIR="${TEMPLATES_DIR:-$HOME/.config/nouveau_doc/config/templates}"
+SNIPPETS_DIR="${SNIPPETS_DIR:-$HOME/.config/nouveau_doc/snippets}"
 
 #############################################
 #   1) Chargement du moteur complet
