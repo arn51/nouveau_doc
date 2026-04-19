@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 ####set -x
+# Mode CI : utiliser les fichiers du dépôt
+if [[ -n "$NOUVEAU_DOC_ROOT" ]]; then
+    export RULES_ENGINE_DIR="$NOUVEAU_DOC_ROOT/rules_engine"
+    export RULES_DIR="$NOUVEAU_DOC_ROOT/rules"
+    export TEMPLATES_DIR="$NOUVEAU_DOC_ROOT/templates"
+    export SNIPPETS_DIR="$NOUVEAU_DOC_ROOT/snippets"
+fi
+
 # --- Force l'exécution sous bash ---
 if [ -z "$BASH_VERSION" ]; then
     exec /usr/bin/env bash "$0" "$@"
