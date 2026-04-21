@@ -39,7 +39,7 @@ SNIPPETS_DIR="${SNIPPETS_DIR:-$HOME/.config/nouveau_doc/snippets}"
 #   1) Chargement du moteur complet
 #############################################
 
-source "$HOME/.local/bin/rules_engine/00_loader.sh"
+source "$RULES_ENGINE_DIR/00_loader.sh"
 
 #############################################
 #   2) Commandes spéciales (avant cli_parse)
