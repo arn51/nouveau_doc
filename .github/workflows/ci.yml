@@ -24,11 +24,11 @@ jobs:
 
       - name: Debug nouveau_doc
         run: |
-        which nouveau_doc
-        nouveau_doc --help || true
-        ls -R .
-        ls -R rules
-        ls -R rules_engine
+          which nouveau_doc
+          nouveau_doc --help || true
+          ls -R .
+          ls -R rules
+          ls -R rules_engine
 
       # 4) Exécuter la validation complète
       - name: Exécuter validate_all_multi.sh
