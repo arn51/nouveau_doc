@@ -6,7 +6,8 @@ if [ -z "$BASH_VERSION" ]; then
 fi
 
 modules_load() {
-    local module_dir="$HOME/.local/bin/rules_engine/modules"
+    # Utilise MODULES_DIR si défini, sinon fallback propre
+    local module_dir="${MODULES_DIR:-$RULES_ENGINE_DIR/modules}"
 
     for module in "$module_dir"/*/module.sh; do
         [[ -f "$module" ]] || continue
@@ -19,9 +20,10 @@ modules_load() {
             echo "[MODULE] ⚠ module '$(basename "$(dirname "$module")")' sans module_register()"
         fi
 
-        # ❌ NE SURTOUT PAS supprimer module_register ici
+        # NE PAS supprimer module_register ici
         # unset -f module_register 2>/dev/null
     done
 }
+
 
 
