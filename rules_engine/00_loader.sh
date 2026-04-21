@@ -6,7 +6,7 @@
 #############################################
 
 # --- 1) Chemins ---
-ENGINE_DIR="$HOME/.local/bin/rules_engine"
+ENGINE_DIR="${RULES_ENGINE_DIR:-$HOME/.local/bin/rules_engine}"
 MODULES_DIR="$ENGINE_DIR/modules"
 
 # --- 2) Chargement des engines ---
@@ -21,4 +21,5 @@ source "$ENGINE_DIR/crt_effects.sh"
 source "$ENGINE_DIR/tree_renderer.sh"
 source "$ENGINE_DIR/stack_renderer.sh"
 source "$ENGINE_DIR/modules_engine.sh"
+
 
