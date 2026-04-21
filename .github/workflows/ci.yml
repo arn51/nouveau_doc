@@ -37,9 +37,9 @@ jobs:
       - name: Exécuter validate_all_multi.sh
         id: validation
         env:
-            NOUVEAU_DOC_ROOT: ${{ github.workspace }}
+          NOUVEAU_DOC_ROOT: ${{ github.workspace }}
         run: |
-            ./validate_all_multi.sh --ci-report-all
+          ./validate_all_multi.sh --ci-report-all
         continue-on-error: true
 
       # 5) Ajouter le résumé Markdown dans l’onglet Summary
