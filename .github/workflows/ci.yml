@@ -17,6 +17,9 @@ jobs:
       - name: Ajouter bin au PATH
         run: echo "$PWD/bin" >> $GITHUB_PATH
 
+      - name: Définir NOUVEAU_DOC_ROOT
+        run: echo "NOUVEAU_DOC_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
+
       # 2) Installation des dépendances
       - name: Installer jq
         run: sudo apt-get install -y jq
