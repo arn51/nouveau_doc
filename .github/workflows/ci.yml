@@ -10,52 +10,78 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1) Récupération du dépôt
       - name: Checkout du dépôt
         uses: actions/checkout@v4
 
+      # 2) Installation des dépendances
       - name: Installer jq
         run: sudo apt-get install -y jq
 
-      - name: Donner les droits d'exécution
-        run: chmod +x bin/nouveau_doc
+      # 3) Donner les droits d'exécution
+      - name: Rendre les scripts exécutables
+        run: chmod +x bin/*
 
-      - name: Exécuter la validation complète
+      # 4) Exécuter la validation complète
+      - name: Exécuter validate_all_multi.sh
         id: validation
         env:
           NOUVEAU_DOC_ROOT: ${{ github.workspace }}
         run: |
-          bin/nouveau_doc --ci-report-all
+          bin/validate_all_multi.sh --ci-report-all
         continue-on-error: true
 
-      - name: Résumé Markdown
+      # 5) Ajouter le résumé Markdown dans l’onglet Summary
+      - name: Ajouter résumé Markdown
         if: always()
         run: |
           echo "## Résultats des tests" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          cat report.md >> $GITHUB_STEP_SUMMARY
+          if [ -f report.md ]; then
+            cat report.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Aucun fichier report.md généré.**" >> $GITHUB_STEP_SUMMARY
+          fi
 
-      - name: Upload des rapports CI
+      # 6) Upload des artefacts (rapports + badges)
+      - name: Upload des rapports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rapports-ci
+          name: rapports-validation
           path: |
-            report.json
             report.md
+            report.json
             report.junit.xml
+            tests_badge*.svg
+            tests_badge*.json
+          if-no-files-found: warn
 
-      - name: Upload des badges
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: badges
-          path: |
-            tests_badge.json
-            tests_badge.svg
-            tests_badge_extended.svg
-            tests_badge_from_json.svg
-            tests_badge_extended_from_json.svg
-
-      - name: Échec si tests KO
+      # 7) Échec du job si la validation échoue
+      - name: Vérifier le statut final
         if: steps.validation.outcome == 'failure'
         run: exit 1
+
+publish-badge:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Télécharger les artefacts
+        uses: actions/download-artifact@v4
+        with:
+          name: rapports-validation
+
+      - name: Publier le badge dans gh-pages
+        run: |
+          mkdir -p public
+          cp tests_badge.svg public/
+
+      - name: Déployer sur GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
