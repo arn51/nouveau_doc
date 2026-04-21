@@ -61,7 +61,7 @@ jobs:
         if: steps.validation.outcome == 'failure'
         run: exit 1
 
-publish-badge:
+  publish-badge:
     needs: validate
     runs-on: ubuntu-latest
     if: always()
