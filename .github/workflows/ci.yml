@@ -45,7 +45,7 @@ jobs:
         env:
           NOUVEAU_DOC_ROOT: ${{ github.workspace }}
         run: |
-          ./validate_all_multi.sh --ci-report-all --ci-badge-auto
+          ./validate_all_multi.sh --ci-report-all --ci-badge-auto --ci-badges-per-type
         continue-on-error: true
 
       # 5) Ajouter le résumé Markdown dans l’onglet Summary
@@ -95,7 +95,7 @@ jobs:
       - name: Publier le badge dans gh-pages
         run: |
           mkdir -p public
-          cp tests_badge.svg public/
+          cp tests_*.svg public/
 
       - name: Déployer sur GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

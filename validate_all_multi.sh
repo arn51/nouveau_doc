@@ -34,6 +34,7 @@ ci_badge_file_json=false
 ci_badge_file_json_extended=false
 ci_badge_auto=false
 ci_report_all=false
+ci_badges_per_type=false
 
 case "$1" in
     --watch) watch_mode=true ;;
@@ -56,6 +57,7 @@ case "$1" in
     --ci-badge-file-json-extended) ci_badge_file_json_extended=true ;;
     --ci-badge-auto) ci_badge_auto=true ;;
     --ci-report-all) ci_report_all=true ;;
+    --ci-badges-per-type) ci_badges_per_type=true ;;
 esac
 
 
@@ -1096,6 +1098,48 @@ EOF
     fi
 }
 
+run_ci_badge_per_type() {
+    local type="$1"
+    local titre="$(generate_title "$type")"
+
+    # Exécuter un seul test
+    result="$(run_test "$titre")"
+    json_block=$(echo "$result" | awk '/###JSON###/{flag=1;next}/###MD###/{flag=0}flag')
+    status=$(echo "$json_block" | grep -oP '(?<="status": ")[^"]+')
+
+    # Score individuel
+    if [[ "$status" == "OK" ]]; then
+        percent=100
+    else
+        percent=0
+    fi
+
+    # Couleur
+    if [[ $percent -eq 100 ]]; then
+        color="#4c1"
+    else
+        color="#e05d44"
+    fi
+
+    # Nom du fichier
+    badge_file="tests_${type}.svg"
+
+    # Génération du badge
+    cat > "$badge_file" <<EOF
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="20">
+  <rect rx="3" width="150" height="20" fill="#555"/>
+  <rect rx="3" x="70" width="80" height="20" fill="$color"/>
+  <g fill="#fff" text-anchor="middle"
+     font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+    <text x="35" y="14">$type</text>
+    <text x="110" y="14">${percent}%</text>
+  </g>
+</svg>
+EOF
+
+    echo "$badge_file"
+}
+
 run_ci_badge_auto() {
     total_tests=0
     passed_tests=0
@@ -1403,6 +1447,11 @@ elif [[ "$ci_badge_auto" == true ]]; then
     run_ci_badge_auto
 elif [[ "$ci_report_all" == true ]]; then
     run_ci_report_all
+elif [[ "$ci_badges_per_type" == true ]]; then
+    for t in "${supported_types[@]}"; do
+        run_ci_badge_per_type "$t"
+    done
+    exit 0
 else
     run_all_tests
 fi
