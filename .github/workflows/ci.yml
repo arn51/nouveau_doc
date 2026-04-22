@@ -42,7 +42,7 @@ jobs:
         env:
           NOUVEAU_DOC_ROOT: ${{ github.workspace }}
         run: |
-          ./validate_all_multi.sh --ci-report-all
+          ./validate_all_multi.sh --ci-report-all --ci-badge-auto
         continue-on-error: true
 
       # 5) Ajouter le résumé Markdown dans l’onglet Summary
