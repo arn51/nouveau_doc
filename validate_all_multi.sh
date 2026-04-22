@@ -11,7 +11,7 @@ fi
 total_tests=0
 passed_tests=0
 json_global=""
-supported_types=(journal bug projet technique idee todo general)
+supported_types=(journal bug projet technique idee todo general meeting)
 
 # Modes
 watch_mode=false
@@ -89,6 +89,7 @@ generate_title() {
         idee) echo "Idée automatique" ;;
         todo) echo "Liste TODO automatique" ;;
         general) echo "Document général automatique" ;;
+        meeting) echo "Réunion automatique" ;;
         *) echo "Document $1 automatique" ;;
     esac
 }
@@ -181,6 +182,11 @@ run_test() {
             [[ "$profile" != "perso" ]] && add_error "PROFILE should be 'perso'"
             [[ "$category" != "general" ]] && add_error "CATEGORY should be 'general'"
             [[ "$template" != "template_general" ]] && add_error "TEMPLATE should be 'template_general'"
+            ;;
+        meeting)
+            [[ "$profile" != "travail" ]] && add_error "PROFILE should be 'travail'"
+            [[ "$category" != "meeting" ]] && add_error "CATEGORY should be 'meeting'"
+            [[ "$template" != "template_meeting" ]] && add_error "TEMPLATE should be 'template_meeting'"
             ;;
         *)
             add_error "Unknown DOC_TYPE '$doc_type'"
