@@ -1443,15 +1443,15 @@ elif [[ "$ci_badge_file_json" == true ]]; then
     run_ci_badge_file_json
 elif [[ "$ci_badge_file_json_extended" == true ]]; then
     run_ci_badge_file_json_extended
-elif [[ "$ci_badge_auto" == true ]]; then
-    run_ci_badge_auto
-elif [[ "$ci_report_all" == true ]]; then
-    run_ci_report_all
 elif [[ "$ci_badges_per_type" == true ]]; then
     for t in "${supported_types[@]}"; do
         run_ci_badge_per_type "$t"
     done
     exit 0
+elif [[ "$ci_badge_auto" == true ]]; then
+    run_ci_badge_auto
+elif [[ "$ci_report_all" == true ]]; then
+    run_ci_report_all
 else
     run_all_tests
 fi
