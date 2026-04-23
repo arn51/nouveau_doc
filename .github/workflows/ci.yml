@@ -40,12 +40,18 @@ jobs:
           ls -R rules_engine
 
       # 4) Exécuter la validation complète
-      - name: Exécuter validate_all_multi.sh
+      - name: Exécuter validate_all_multi.sh (rapport complet)
         id: validation
         env:
           NOUVEAU_DOC_ROOT: ${{ github.workspace }}
         run: |
-          ./validate_all_multi.sh --ci-report-all --ci-badge-auto --ci-badges-per-type
+          ./validate_all_multi.sh --ci-report-all
+
+      - name: Générer le badge global
+        run: ./validate_all_multi.sh --ci-badge-auto
+
+      - name: Générer les badges par type
+        run: ./validate_all_multi.sh --ci-badges-per-type
         continue-on-error: true
 
       # 5) Ajouter le résumé Markdown dans l’onglet Summary
