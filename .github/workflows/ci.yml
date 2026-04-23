@@ -50,22 +50,21 @@ jobs:
       - name: Générer le badge global
         run: ./validate_all_multi.sh --ci-badge-auto
 
-      - name: Upload badge global
-        uses: actions/upload-artifact@v4
-        with:
-          name: rapports-validation
-          path: tests_badge*.svg
-          if-no-files-found: warn
-
       - name: Générer les badges par type
         run: ./validate_all_multi.sh --ci-badges-per-type
         continue-on-error: true
 
-      - name: Upload badges par type
+      # 🔥 Un seul upload pour tout
+      - name: Upload rapports + tous les badges
         uses: actions/upload-artifact@v4
         with:
           name: rapports-validation
-          path: tests_*.svg
+          path: |
+            report.md
+            report.json
+            report.junit.xml
+            tests_*.svg
+            tests_badge*.json
           if-no-files-found: warn
 
       # 5) Ajouter le résumé Markdown dans l’onglet Summary
