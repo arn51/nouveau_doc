@@ -129,7 +129,13 @@ async function loadBadges() {
       }
     } catch (e) {}
 
-    if (score !== null) scores.push(score);
+    if (score !== null) {
+        // Convertit "100%", "8/8 (100%)", "tests 100%", etc. en nombre
+        const match = String(score).match(/(\d+)\s*%/);
+        if (match) {
+            scores.push(parseInt(match[1], 10));
+        }
+    }
 
     const row = document.createElement("tr");
 
