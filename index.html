@@ -102,6 +102,25 @@ function colorForScore(score) {
   return "#e74c3c";
 }
 
+// Extrait un score numérique depuis n'importe quel format
+function extractNumericScore(raw) {
+  if (!raw) return null;
+
+  // Cherche un pourcentage dans le texte
+  const match = String(raw).match(/(\d+)\s*%/);
+  if (match) return parseInt(match[1], 10);
+
+  // Cherche un format "8/8"
+  const frac = String(raw).match(/(\d+)\s*\/\s*(\d+)/);
+  if (frac) {
+    const num = parseInt(frac[1], 10);
+    const den = parseInt(frac[2], 10);
+    if (den > 0) return Math.round((num / den) * 100);
+  }
+
+  return null;
+}
+
 async function loadBadges() {
   const repo = "arn51/nouveau_doc";
   const branch = "gh-pages";
@@ -118,31 +137,28 @@ async function loadBadges() {
     const baseName = file.name.replace(".svg", "");
     const jsonName = baseName + ".json";
 
-    let score = null;
+    let rawScore = null;
 
     try {
       const jsonUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${jsonName}`;
       const jsonResp = await fetch(jsonUrl);
       if (jsonResp.ok) {
         const data = await jsonResp.json();
-        score = data.score ?? null;
+        rawScore = data.score ?? null;
       }
     } catch (e) {}
 
-    if (score !== null) {
-        // Convertit "100%", "8/8 (100%)", "tests 100%", etc. en nombre
-        const match = String(score).match(/(\d+)\s*%/);
-        if (match) {
-            scores.push(parseInt(match[1], 10));
-        }
-    }
+    // Extrait un score numérique fiable
+    const numericScore = extractNumericScore(rawScore);
+
+    if (numericScore !== null) scores.push(numericScore);
 
     const row = document.createElement("tr");
 
     row.innerHTML = `
       <td>${baseName}</td>
       <td><img class="badge-img" src="${file.download_url}" alt="${baseName}"></td>
-      <td><span class="score" style="background:${colorForScore(score)}">${match ? match[1] + "%" : score}</span></td>
+      <td><span class="score" style="background:${colorForScore(numericScore)}">${numericScore !== null ? numericScore + "%" : "—"}</span></td>
     `;
 
     document.getElementById("badgeBody").appendChild(row);
@@ -155,7 +171,7 @@ function updateSummary(scores) {
   const total = scores.length;
   const completed = scores.filter(s => s === 100).length;
   const incomplete = total - completed;
-  const average = (scores.reduce((a,b) => a+b, 0) / total).toFixed(2);
+  const average = total > 0 ? (scores.reduce((a,b) => a+b, 0) / total).toFixed(2) : 0;
 
   document.getElementById("total").innerText = `Nombre total de badges : ${total}`;
   document.getElementById("completed").innerText = `Badges à 100% : ${completed}`;
@@ -212,4 +228,3 @@ loadBadges();
 
 </body>
 </html>
-
