@@ -83,6 +83,7 @@ jobs:
             report.json
             report.junit.xml
             tests_*.svg
+            tests_badge.json
             tests_badge*.json
           if-no-files-found: warn
 
