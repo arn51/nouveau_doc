@@ -110,6 +110,7 @@ jobs:
         run: |
           mkdir -p public
           cp tests_*.svg public/
+          cp tests_*.json public/ || true
 
       - name: Générer la page HTML des badges
         run: |
