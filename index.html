@@ -142,7 +142,7 @@ async function loadBadges() {
     row.innerHTML = `
       <td>${baseName}</td>
       <td><img class="badge-img" src="${file.download_url}" alt="${baseName}"></td>
-      <td><span class="score" style="background:${colorForScore(score)}">${score}</span></td>
+      <td><span class="score" style="background:${colorForScore(score)}">${match ? match[1] + "%" : score}</span></td>
     `;
 
     document.getElementById("badgeBody").appendChild(row);
