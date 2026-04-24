@@ -200,11 +200,11 @@ async function loadBadges() {
       }
     } catch (e) {}
     const row = document.createElement("tr");
-    row.innerHTML = `
+    row.innerHTML = \`
       <td>${baseName}</td>
       <td><img class="badge-img" src="${file.download_url}" alt="${baseName}"></td>
       <td><span class="score" style="background:${colorForScore(score)}">${score}</span></td>
-    `;
+    \`;
     document.getElementById("badgeBody").appendChild(row);
   }
 }
