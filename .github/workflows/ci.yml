@@ -114,140 +114,17 @@ jobs:
       - name: Générer la page HTML des badges
         run: |
           mkdir -p public
-          cat > public/index.html << 'EOF'
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>Dashboard des Badges</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 40px;
-  background: #f5f5f5;
-}
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-}
-th, td {
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
-  text-align: center;
-}
-th {
-  background: #333;
-  color: white;
-  cursor: pointer;
-}
-tr:hover {
-  background: #f0f0f0;
-}
-.badge-img {
-  max-width: 180px;
-}
-.score {
-  font-weight: bold;
-  padding: 6px 12px;
-  border-radius: 6px;
-  color: white;
-}
-</style>
-</head>
-<body>
-<h1>Dashboard des Badges de Validation</h1>
-<table id="badgeTable">
-  <thead>
-    <tr>
-      <th onclick="sortTable(0)">Badge</th>
-      <th>Image</th>
-      <th onclick="sortTable(2)">Score</th>
-    </tr>
-  </thead>
-  <tbody id="badgeBody">
-  </tbody>
-</table>
-<script>
-function colorForScore(score) {
-  if (score >= 90) return "#2ecc71";
-  if (score >= 70) return "#f1c40f";
-  return "#e74c3c";
-}
-async function loadBadges() {
-  const repo = "arn51/nouveau_doc";
-  const branch = "gh-pages";
-  const apiUrl = `https://api.github.com/repos/${repo}/contents/?ref=${branch}`;
-  const response = await fetch(apiUrl);
-  const files = await response.json();
-  const svgFiles = files.filter(f => f.name.endsWith(".svg") && f.name.startsWith("tests_"));
-  for (const file of svgFiles) {
-    const baseName = file.name.replace(".svg", "");
-    const jsonName = baseName + ".json";
-    let score = "—";
-    try {
-      const jsonUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${jsonName}`;
-      const jsonResp = await fetch(jsonUrl);
-      if (jsonResp.ok) {
-        const data = await jsonResp.json();
-        score = data.score ?? "—";
-      }
-    } catch (e) {}
-    const row = document.createElement("tr");
-    row.innerHTML = \`
-      <td>${baseName}</td>
-      <td><img class="badge-img" src="${file.download_url}" alt="${baseName}"></td>
-      <td><span class="score" style="background:${colorForScore(score)}">${score}</span></td>
-    \`;
-    document.getElementById("badgeBody").appendChild(row);
-  }
-}
-function sortTable(n) {
-  const table = document.getElementById("badgeTable");
-  let switching = true;
-  let dir = "asc";
-  let switchcount = 0;
-  while (switching) {
-    switching = false;
-    const rows = table.rows;
-    for (let i = 1; i < rows.length - 1; i++) {
-      let shouldSwitch = false;
-      const x = rows[i].getElementsByTagName("td")[n];
-      const y = rows[i + 1].getElementsByTagName("td")[n];
-      let cmpX = x.innerText.toLowerCase();
-      let cmpY = y.innerText.toLowerCase();
-      if (!isNaN(parseFloat(cmpX))) {
-        cmpX = parseFloat(cmpX);
-        cmpY = parseFloat(cmpY);
-      }
-      if ((dir === "asc" && cmpX > cmpY) || (dir === "desc" && cmpX < cmpY)) {
-        shouldSwitch = true;
-        break;
-      }
-    }
-    if (shouldSwitch) {
-      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-      switching = true;
-      switchcount++;
-    } else {
-      if (switchcount === 0 && dir === "asc") {
-        dir = "desc";
-        switching = true;
-      }
-    }
-  }
-}
-loadBadges();
-</script>
-</body>
-</html>
-EOF
+          echo '<!DOCTYPE html>' > public/index.html
+          echo '<html lang="fr"><head><meta charset="UTF-8"><title>Dashboard</title>' >> public/index.html
+          echo '<style>body{font-family:Arial;margin:40px;background:#f5f5f5;}table{width:100%;border-collapse:collapse;background:white;border-radius:8px;}th,td{padding:12px;border-bottom:1px solid #ddd;text-align:center;}th{background:#333;color:white;cursor:pointer;}tr:hover{background:#f0f0f0;}.badge-img{max-width:180px;}.score{font-weight:bold;padding:6px 12px;border-radius:6px;color:white;}</style>' >> public/index.html
+          echo '</head><body><h1>Dashboard des Badges</h1>' >> public/index.html
+          echo '<table id="badgeTable"><thead><tr><th onclick="sortTable(0)">Badge</th><th>Image</th><th onclick="sortTable(2)">Score</th></tr></thead><tbody id="badgeBody"></tbody></table>' >> public/index.html
+          echo '<script>' >> public/index.html
+          echo 'function colorForScore(s){if(s>=90)return"#2ecc71";if(s>=70)return"#f1c40f";return"#e74c3c";}' >> public/index.html
+          echo 'async function loadBadges(){const repo="arn51/nouveau_doc";const branch="gh-pages";const api=`https://api.github.com/repos/${repo}/contents/?ref=${branch}`;const r=await fetch(api);const f=await r.json();const svgs=f.filter(x=>x.name.endsWith(".svg")&&x.name.startsWith("tests_"));for(const file of svgs){const base=file.name.replace(".svg","");const json=base+".json";let score="—";try{const jr=await fetch(`https://raw.githubusercontent.com/${repo}/${branch}/${json}`);if(jr.ok){const d=await jr.json();score=d.score??"—";}}catch(e){}const row=document.createElement("tr");row.innerHTML="<td>"+base+"</td><td><img class=badge-img src="+file.download_url+"></td><td><span class=score style=background:"+colorForScore(score)+">"+score+"</span></td>";document.getElementById("badgeBody").appendChild(row);}}' >> public/index.html
+          echo 'function sortTable(n){const t=document.getElementById("badgeTable");let sw=true,dir="asc",c=0;while(sw){sw=false;const r=t.rows;for(let i=1;i<r.length-1;i++){let s=false;let x=r[i].getElementsByTagName("td")[n].innerText.toLowerCase();let y=r[i+1].getElementsByTagName("td")[n].innerText.toLowerCase();if(!isNaN(parseFloat(x))){x=parseFloat(x);y=parseFloat(y);}if((dir=="asc"&&x>y)||(dir=="desc"&&x<y)){s=true;break;}if(s){r[i].parentNode.insertBefore(r[i+1],r[i]);sw=true;c++;break;}}if(!sw&&c==0&&dir=="asc"){dir="desc";sw=true;}}}' >> public/index.html
+          echo 'loadBadges();</script></body></html>' >> public/index.html
+
 
       - name: Déployer sur GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
