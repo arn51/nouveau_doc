@@ -50,6 +50,13 @@ jobs:
       - name: Générer le badge global
         run: ./validate_all_multi.sh --ci-badge-auto
 
+      - name: Debug badges globaux
+        run: |
+          echo "Contenu du dossier courant :"
+          ls -l .
+          echo "Recherche des badges :"
+          find . -name "tests_badge*"
+
       - name: Générer les badges par type
         run: ./validate_all_multi.sh --ci-badges-per-type
         continue-on-error: true
