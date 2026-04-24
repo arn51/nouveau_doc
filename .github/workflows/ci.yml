@@ -110,174 +110,168 @@ jobs:
         run: |
           mkdir -p public
           cp tests_*.svg public/
+
       - name: Générer la page HTML des badges
         run: |
           mkdir -p public
           cat > public/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html lang="fr">
-          <head>
-          <meta charset="UTF-8">
-          <title>Dashboard des Badges</title>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard des Badges</title>
 
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 40px;
-              background: #f5f5f5;
-            }
-            h1 {
-              text-align: center;
-              margin-bottom: 30px;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              background: white;
-              border-radius: 8px;
-              overflow: hidden;
-            }
-            th, td {
-              padding: 12px;
-              border-bottom: 1px solid #ddd;
-              text-align: center;
-            }
-            th {
-              background: #333;
-              color: white;
-              cursor: pointer;
-            }
-            tr:hover {
-              background: #f0f0f0;
-            }
-            .badge-img {
-              max-width: 180px;
-            }
-            .score {
-              font-weight: bold;
-              padding: 6px 12px;
-              border-radius: 6px;
-              color: white;
-            }
-          </style>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    background: #f5f5f5;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+  }
+  th {
+    background: #333;
+    color: white;
+    cursor: pointer;
+  }
+  tr:hover {
+    background: #f0f0f0;
+  }
+  .badge-img {
+    max-width: 180px;
+  }
+  .score {
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: white;
+  }
+</style>
 
-          </head>
-          <body>
+</head>
+<body>
 
-          <h1>Dashboard des Badges de Validation</h1>
+<h1>Dashboard des Badges de Validation</h1>
 
-          <table id="badgeTable">
-            <thead>
-              <tr>
-                <th onclick="sortTable(0)">Badge</th>
-                <th>Image</th>
-                <th onclick="sortTable(2)">Score</th>
-              </tr>
-            </thead>
-            <tbody id="badgeBody">
-            </tbody>
-          </table>
+<table id="badgeTable">
+  <thead>
+    <tr>
+      <th onclick="sortTable(0)">Badge</th>
+      <th>Image</th>
+      <th onclick="sortTable(2)">Score</th>
+    </tr>
+  </thead>
+  <tbody id="badgeBody">
+  </tbody>
+</table>
 
-          <script>
-          // Fonction utilitaire pour colorer selon le score
-          function colorForScore(score) {
-            if (score >= 90) return "#2ecc71";   // vert
-            if (score >= 70) return "#f1c40f";   // jaune
-            return "#e74c3c";                    // rouge
-          }
+<script>
+function colorForScore(score) {
+  if (score >= 90) return "#2ecc71";
+  if (score >= 70) return "#f1c40f";
+  return "#e74c3c";
+}
 
-          // Récupère automatiquement tous les fichiers tests_*.svg
-          async function loadBadges() {
-            const repo = "arn51/nouveau_doc";
-            const branch = "gh-pages";
+async function loadBadges() {
+  const repo = "arn51/nouveau_doc";
+  const branch = "gh-pages";
 
-            const apiUrl = `https://api.github.com/repos/${repo}/contents/?ref=${branch}`;
-            const response = await fetch(apiUrl);
-            const files = await response.json();
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/?ref=${branch}`;
+  const response = await fetch(apiUrl);
+  const files = await response.json();
 
-            const svgFiles = files.filter(f => f.name.endsWith(".svg") && f.name.startsWith("tests_"));
+  const svgFiles = files.filter(f => f.name.endsWith(".svg") && f.name.startsWith("tests_"));
 
-            for (const file of svgFiles) {
-              const baseName = file.name.replace(".svg", "");
-              const jsonName = baseName + ".json";
+  for (const file of svgFiles) {
+    const baseName = file.name.replace(".svg", "");
+    const jsonName = baseName + ".json";
 
-              let score = "—";
+    let score = "—";
 
-              // Essaye de charger le JSON associé
-              try {
-                const jsonUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${jsonName}`;
-                const jsonResp = await fetch(jsonUrl);
-                if (jsonResp.ok) {
-                  const data = await jsonResp.json();
-                  score = data.score ?? "—";
-                }
-              } catch (e) {}
+    try {
+      const jsonUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${jsonName}`;
+      const jsonResp = await fetch(jsonUrl);
+      if (jsonResp.ok) {
+        const data = await jsonResp.json();
+        score = data.score ?? "—";
+      }
+    } catch (e) {}
 
-              // Ajout dans le tableau
-              const row = document.createElement("tr");
+    const row = document.createElement("tr");
 
-              row.innerHTML = `
-                <td>${baseName}</td>
-                <td><img class="badge-img" src="${file.download_url}" alt="${baseName}"></td>
-                <td><span class="score" style="background:${colorForScore(score)}">${score}</span></td>
-              `;
+    row.innerHTML = `
+      <td>${baseName}</td>
+      <td><img class="badge-img" src="${file.download_url}" alt="${baseName}"></td>
+      <td><span class="score" style="background:${colorForScore(score)}">${score}</span></td>
+    `;
 
-              document.getElementById("badgeBody").appendChild(row);
-            }
-          }
+    document.getElementById("badgeBody").appendChild(row);
+  }
+}
 
-          // Tri du tableau
-          function sortTable(n) {
-            const table = document.getElementById("badgeTable");
-            let switching = true;
-            let dir = "asc";
-            let switchcount = 0;
+function sortTable(n) {
+  const table = document.getElementById("badgeTable");
+  let switching = true;
+  let dir = "asc";
+  let switchcount = 0;
 
-            while (switching) {
-              switching = false;
-              const rows = table.rows;
+  while (switching) {
+    switching = false;
+    const rows = table.rows;
 
-              for (let i = 1; i < rows.length - 1; i++) {
-                let shouldSwitch = false;
+    for (let i = 1; i < rows.length - 1; i++) {
+      let shouldSwitch = false;
 
-                const x = rows[i].getElementsByTagName("td")[n];
-                const y = rows[i + 1].getElementsByTagName("td")[n];
+      const x = rows[i].getElementsByTagName("td")[n];
+      const y = rows[i + 1].getElementsByTagName("td")[n];
 
-                let cmpX = x.innerText.toLowerCase();
-                let cmpY = y.innerText.toLowerCase();
+      let cmpX = x.innerText.toLowerCase();
+      let cmpY = y.innerText.toLowerCase();
 
-                if (!isNaN(parseFloat(cmpX))) {
-                  cmpX = parseFloat(cmpX);
-                  cmpY = parseFloat(cmpY);
-                }
+      if (!isNaN(parseFloat(cmpX))) {
+        cmpX = parseFloat(cmpX);
+        cmpY = parseFloat(cmpY);
+      }
 
-                if ((dir === "asc" && cmpX > cmpY) || (dir === "desc" && cmpX < cmpY)) {
-                  shouldSwitch = true;
-                  break;
-                }
-              }
+      if ((dir === "asc" && cmpX > cmpY) || (dir === "desc" && cmpX < cmpY)) {
+        shouldSwitch = true;
+        break;
+      }
+    }
 
-              if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-                switchcount++;
-              } else {
-                if (switchcount === 0 && dir === "asc") {
-                  dir = "desc";
-                  switching = true;
-                }
-              }
-            }
-          }
+    if (shouldSwitch) {
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      switchcount++;
+    } else {
+      if (switchcount === 0 && dir === "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
 
-          loadBadges();
-          </script>
+loadBadges();
+</script>
 
-          </body>
-          </html>
-
-         EOF
-
+</body>
+</html>
+EOF
 
       - name: Déployer sur GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
