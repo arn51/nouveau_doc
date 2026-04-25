@@ -84,7 +84,7 @@ jobs:
             report.junit.xml
             tests_*.svg
             tests_badge.json
-            tests_badge*.json
+            tests_*.json
           if-no-files-found: warn
 
       # 7) Échec du job si la validation échoue
