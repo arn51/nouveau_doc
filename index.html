@@ -96,7 +96,7 @@ h1 {
 }
 
 /* ========================= */
-/*   SIDEBAR                 */
+/*   SIDEBAR (corrigée)      */
 /* ========================= */
 
 .sidebar {
@@ -111,6 +111,12 @@ h1 {
   transform: translateX(-100%);
   transition: transform 0.3s;
   z-index: 1000;
+
+  /* CORRECTION DU VIDE */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
 }
 
 .sidebar.open {
@@ -121,21 +127,19 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 5px;
 }
 
 .sidebar-section {
-  margin-top: 20px;
-}
-
-.sidebar-section h3 {
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .sidebar button,
 .sidebar select,
 .sidebar input {
   width: 100%;
-  margin-bottom: 10px;
   padding: 10px;
   background: var(--accent);
   color: white;
@@ -276,6 +280,7 @@ canvas {
 }
 
 </style>
+
 <meta charset="UTF-8">
 <title>Dashboard des Badges</title>
 
