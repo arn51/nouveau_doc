@@ -7,333 +7,95 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 40px;
-    background: var(--bg);
-    color: var(--fg);
-    transition: 0.3s;
-  }
-
-  :root {
-    --bg: #f5f5f5;
-    --fg: #222;
-    --card: white;
-    --border: #ddd;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1e1e1e;
-      --fg: #eee;
-      --card: #2b2b2b;
-      --border: #444;
-    }
-  }
-
-  .dark {
-    --bg: #1e1e1e;
-    --fg: #eee;
-    --card: #2b2b2b;
-    --border: #444;
-  }
-
-  h1 { text-align: center; margin-bottom: 20px; }
-
-  #summary {
-    background: var(--card);
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--card);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  th, td {
-    padding: 12px;
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-  }
-
-  th {
-    background: #333;
-    color: white;
-    cursor: pointer;
-  }
-
-  tr:hover { background: rgba(0,0,0,0.05); }
-
-  .badge-img { max-width: 180px; }
-
-  .score {
-    font-weight: bold;
-    padding: 6px 12px;
-    border-radius: 6px;
-    color: white;
-  }
-
-  #filters, #exportButtons, #themeToggle {
-    margin: 20px 0;
-    text-align: center;
-  }
-
-  button, select {
-    padding: 8px 12px;
-    margin: 5px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-</style>
 </head>
 <body>
 
-<h1>Dashboard des Badges</h1>
+<!-- ========================= -->
+<!--   SIDEBAR (rétractée)     -->
+<!-- ========================= -->
+<div id="sidebar" class="sidebar collapsed">
+  <div class="sidebar-header">
+    <h2>Menu</h2>
+    <button id="closeSidebar">✖</button>
+  </div>
 
-<div id="themeToggle">
-  <button id="toggleTheme">Basculer thème clair/sombre</button>
+  <div class="sidebar-section">
+    <h3>Affichage</h3>
+    <button id="toggleView">Basculer cartes / tableau</button>
+    <button id="toggleCompact">Mode compact / détaillé</button>
+  </div>
+
+  <div class="sidebar-section">
+    <h3>Thème</h3>
+    <button class="theme-btn" data-theme="auto">Auto</button>
+    <button class="theme-btn" data-theme="light">Clair</button>
+    <button class="theme-btn" data-theme="dark">Sombre</button>
+    <button class="theme-btn" data-theme="blue">Bleu</button>
+    <button class="theme-btn" data-theme="green">Vert</button>
+    <button class="theme-btn" data-theme="purple">Violet</button>
+    <button class="theme-btn" data-theme="red">Rouge</button>
+  </div>
+
+  <div class="sidebar-section">
+    <h3>Export</h3>
+    <button id="exportCSV">Exporter CSV</button>
+    <button id="exportJSON">Exporter JSON</button>
+    <button id="exportMD">Exporter Markdown</button>
+  </div>
+
+  <div class="sidebar-section">
+    <h3>Filtres</h3>
+    <select id="filterType">
+      <option value="all">Tous</option>
+    </select>
+
+    <input id="searchInput" type="text" placeholder="Recherche...">
+  </div>
 </div>
 
-<div id="summary">
-  <h2>Résumé global</h2>
-  <div id="total"></div>
-  <div id="completed"></div>
-  <div id="incomplete"></div>
-  <div id="average"></div>
-  <div id="updated"></div>
+<!-- Bouton hamburger -->
+<button id="openSidebar" class="hamburger">☰</button>
+
+<!-- ========================= -->
+<!--   CONTENU PRINCIPAL       -->
+<!-- ========================= -->
+<div id="main">
+
+  <h1>Dashboard des Badges</h1>
+
+  <!-- Résumé global -->
+  <div id="summary" class="card">
+    <h2>Résumé global</h2>
+    <div id="total"></div>
+    <div id="completed"></div>
+    <div id="incomplete"></div>
+    <div id="average"></div>
+    <div id="updated"></div>
+  </div>
+
+  <!-- Graphiques -->
+  <div class="charts">
+    <canvas id="chartBars" height="80"></canvas>
+    <canvas id="chartRadar" height="120"></canvas>
+    <canvas id="chartDonut" height="120"></canvas>
+  </div>
+
+  <!-- Mode cartes -->
+  <div id="cardsContainer" class="cards-view"></div>
+
+  <!-- Mode tableau -->
+  <table id="badgeTable" class="table-view hidden">
+    <thead>
+      <tr>
+        <th data-col="type">Badge</th>
+        <th>Image</th>
+        <th data-col="score">Score</th>
+      </tr>
+    </thead>
+    <tbody id="badgeBody"></tbody>
+  </table>
+
 </div>
-
-<canvas id="chart" height="80"></canvas>
-<canvas id="radar" height="120"></canvas>
-
-<div id="filters">
-  <label for="filter">Filtrer par type :</label>
-  <select id="filter">
-    <option value="all">Tous</option>
-  </select>
-</div>
-
-<div id="exportButtons">
-  <button onclick="exportCSV()">Exporter CSV</button>
-  <button onclick="exportJSON()">Exporter JSON</button>
-  <button onclick="exportMD()">Exporter Markdown</button>
-</div>
-
-<table id="badgeTable">
-  <thead>
-    <tr>
-      <th onclick="sortTable(0)">Badge</th>
-      <th>Image</th>
-      <th onclick="sortTable(2)">Score</th>
-    </tr>
-  </thead>
-  <tbody id="badgeBody"></tbody>
-</table>
-
-<script>
-let badgeData = [];
-
-function colorForScore(score) {
-  if (score >= 90) return "#2ecc71";
-  if (score >= 70) return "#f1c40f";
-  return "#e74c3c";
-}
-
-async function loadBadges() {
-  const repo = "arn51/nouveau_doc";
-  const branch = "gh-pages";
-
-  const apiUrl = `https://api.github.com/repos/${repo}/contents/?ref=${branch}`;
-  const response = await fetch(apiUrl);
-  const files = await response.json();
-
-  const jsonFiles = files.filter(f => f.name.endsWith(".json") && f.name.startsWith("tests_"));
-
-  let scores = [];
-  let types = new Set();
-
-  for (const file of jsonFiles) {
-    const data = await (await fetch(file.download_url)).json();
-
-    if (data.type === undefined) continue;
-
-    const base = file.name.replace(".json", "");
-    const svg = base + ".svg";
-
-    const score = data.score ?? Math.round((data.success / data.tests) * 100);
-
-    scores.push(score);
-    types.add(data.type);
-
-    badgeData.push({ type: data.type, score });
-
-    const row = document.createElement("tr");
-    row.setAttribute("data-type", data.type);
-
-    row.innerHTML = `
-      <td>${data.type}</td>
-      <td><img class="badge-img" src="${svg}"></td>
-      <td><span class="score" style="background:${colorForScore(score)}">${score}%</span></td>
-    `;
-    document.getElementById("badgeBody").appendChild(row);
-  }
-
-  scores = scores.filter(s => !isNaN(s));
-
-  updateSummary(scores);
-  updateFilters(types);
-  drawChart(scores);
-  drawRadar();
-}
-
-function updateSummary(scores) {
-  const total = scores.length;
-  const completed = scores.filter(s => s === 100).length;
-  const incomplete = total - completed;
-  const average = total > 0 ? (scores.reduce((a,b) => a+b, 0) / total).toFixed(2) : 0;
-
-  document.getElementById("total").innerText = `Nombre total de badges : ${total}`;
-  document.getElementById("completed").innerText = `Badges à 100% : ${completed}`;
-  document.getElementById("incomplete").innerText = `Badges incomplets : ${incomplete}`;
-  document.getElementById("average").innerText = `Score moyen : ${average}%`;
-  document.getElementById("updated").innerText = `Dernière mise à jour : ${new Date().toLocaleString("fr-FR")}`;
-}
-
-function updateFilters(types) {
-  const select = document.getElementById("filter");
-  types.forEach(t => {
-    const opt = document.createElement("option");
-    opt.value = t;
-    opt.textContent = t;
-    select.appendChild(opt);
-  });
-
-  select.addEventListener("change", () => {
-    const value = select.value;
-    document.querySelectorAll("#badgeBody tr").forEach(row => {
-      row.style.display = (value === "all" || row.dataset.type === value) ? "" : "none";
-    });
-  });
-}
-
-function drawChart(scores) {
-  new Chart(document.getElementById("chart"), {
-    type: "bar",
-    data: {
-      labels: scores.map((_, i) => "Badge " + (i+1)),
-      datasets: [{
-        label: "Score (%)",
-        data: scores,
-        backgroundColor: scores.map(s => colorForScore(s))
-      }]
-    },
-    options: {
-      scales: { y: { beginAtZero: true, max: 100 } }
-    }
-  });
-}
-
-function drawRadar() {
-  const labels = badgeData.map(b => b.type);
-  const values = badgeData.map(b => b.score);
-
-  new Chart(document.getElementById("radar"), {
-    type: "radar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Score par type",
-        data: values,
-        backgroundColor: "rgba(46, 204, 113, 0.3)",
-        borderColor: "#2ecc71",
-        borderWidth: 2
-      }]
-    },
-    options: {
-      scales: { r: { beginAtZero: true, max: 100 } }
-    }
-  });
-}
-
-function sortTable(n) {
-  const table = document.getElementById("badgeTable");
-  let switching = true;
-  let dir = "asc";
-  let switchcount = 0;
-
-  while (switching) {
-    switching = false;
-    const rows = table.rows;
-
-    for (let i = 1; i < rows.length - 1; i++) {
-      let shouldSwitch = false;
-
-      const x = rows[i].getElementsByTagName("td")[n];
-      const y = rows[i + 1].getElementsByTagName("td")[n];
-
-      let cmpX = x.innerText.toLowerCase();
-      let cmpY = y.innerText.toLowerCase();
-
-      if (!isNaN(parseFloat(cmpX))) {
-        cmpX = parseFloat(cmpX);
-        cmpY = parseFloat(cmpY);
-      }
-
-      if ((dir === "asc" && cmpX > cmpY) || (dir === "desc" && cmpX < cmpY)) {
-        shouldSwitch = true;
-        break;
-      }
-    }
-
-    if (shouldSwitch) {
-      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-      switching = true;
-      switchcount++;
-    } else {
-      if (switchcount === 0 && dir === "asc") {
-        dir = "desc";
-        switching = true;
-      }
-    }
-  }
-}
-
-function exportCSV() {
-  let csv = "type,score\n";
-  badgeData.forEach(b => csv += `${b.type},${b.score}\n`);
-  download("badges.csv", csv);
-}
-
-function exportJSON() {
-  download("badges.json", JSON.stringify(badgeData, null, 2));
-}
-
-function exportMD() {
-  let md = "# Résultats des badges\n\n| Type | Score |\n|------|-------|\n";
-  badgeData.forEach(b => md += `| ${b.type} | ${b.score}% |\n`);
-  download("badges.md", md);
-}
-
-function download(filename, text) {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-  a.download = filename;
-  a.click();
-}
-
-document.getElementById("toggleTheme").addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-});
-
-loadBadges();
-</script>
 
 </body>
 </html>
