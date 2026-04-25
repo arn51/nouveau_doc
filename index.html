@@ -49,7 +49,16 @@ function colorForScore(score) {
 }
 
 async function loadBadges() {
-  const files = await (await fetch("./")).text();
+  const repo = "arn51/nouveau_doc";
+  const branch = "gh-pages";
+
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/?ref=${branch}`;
+  const response = await fetch(apiUrl);
+  const files = await response.json();
+
+  const jsonFiles = files.filter(f => f.name.endsWith(".json") && f.name.startsWith("tests_"));
+  const svgFiles  = files.filter(f => f.name.endsWith(".svg")  && f.name.startsWith("tests_"));
+
   const parser = new DOMParser();
   const doc = parser.parseFromString(files, "text/html");
 
