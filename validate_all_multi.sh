@@ -1121,10 +1121,10 @@ run_ci_badge_per_type() {
         color="#e05d44"
     fi
 
-    # Nom du fichier
+    # Nom du fichier SVG
     badge_file="tests_${type}.svg"
 
-    # Génération du badge
+    # Génération du badge SVG
     cat > "$badge_file" <<EOF
 <svg xmlns="http://www.w3.org/2000/svg" width="150" height="20">
   <rect rx="3" width="150" height="20" fill="#555"/>
@@ -1138,6 +1138,22 @@ run_ci_badge_per_type() {
 EOF
 
     echo "$badge_file"
+
+    # -------------------------
+    # JSON PAR TYPE (NOUVEAU)
+    # -------------------------
+    json_file="tests_${type}.json"
+
+    cat > "$json_file" <<EOF
+{
+  "type": "$type",
+  "tests": 1,
+  "success": $([[ "$status" == "OK" ]] && echo 1 || echo 0),
+  "score": $percent
+}
+EOF
+
+    echo "$json_file"
 }
 
 run_ci_badge_auto() {
