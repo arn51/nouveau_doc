@@ -138,10 +138,14 @@ async function loadBadges() {
   let types = new Set();
 
   for (const file of jsonFiles) {
+    const data = await (await fetch(file.download_url)).json();
+
+    // IGNORER tests_badge.json (pas de type)
+    if (data.type === undefined) continue;
+
     const base = file.name.replace(".json", "");
     const svg = base + ".svg";
 
-    const data = await (await fetch(file.download_url)).json();
     const score = data.score ?? Math.round((data.success / data.tests) * 100);
 
     scores.push(score);
@@ -157,6 +161,9 @@ async function loadBadges() {
     `;
     document.getElementById("badgeBody").appendChild(row);
   }
+
+  // Éliminer les NaN
+  scores = scores.filter(s => !isNaN(s));
 
   updateSummary(scores);
   updateFilters(types);
