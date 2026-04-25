@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<meta charset="UTF-8">
+<title>Dashboard des Badges</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 
 /* ========================= */
@@ -280,13 +286,6 @@ canvas {
 }
 
 </style>
-
-<meta charset="UTF-8">
-<title>Dashboard des Badges</title>
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 <body>
 
@@ -637,40 +636,4 @@ function drawCharts(scores) {
   });
 
   // Radar
-  new Chart(document.getElementById("chartRadar"), {
-    type: "radar",
-    data: {
-      labels: badgeData.map(b => b.type),
-      datasets: [{
-        label: "Score par type",
-        data: badgeData.map(b => b.score),
-        backgroundColor: "rgba(46, 204, 113, 0.3)",
-        borderColor: "#2ecc71",
-        borderWidth: 2
-      }]
-    }
-  });
-
-  // Donut
-  new Chart(document.getElementById("chartDonut"), {
-    type: "doughnut",
-    data: {
-      labels: badgeData.map(b => b.type),
-      datasets: [{
-        data: badgeData.map(b => b.score),
-        backgroundColor: badgeData.map(b => colorForScore(b.score))
-      }]
-    }
-  });
-}
-
-// =======================================
-// LANCEMENT
-// =======================================
-
-loadBadges();
-
-</script>
-
-</body>
-</html>
+  new Chart(document.getElementById("chartRadar"),
