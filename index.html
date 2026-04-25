@@ -1,6 +1,281 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<style>
+
+/* ========================= */
+/*   VARIABLES DE BASE       */
+/* ========================= */
+
+:root {
+  --bg: #f5f5f5;
+  --fg: #222;
+  --card: #ffffff;
+  --border: #ddd;
+  --accent: #3498db;
+  --accent-light: #5dade2;
+  --shadow: rgba(0,0,0,0.15);
+}
+
+/* Mode sombre auto */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #eee;
+    --card: #2b2b2b;
+    --border: #444;
+    --shadow: rgba(0,0,0,0.4);
+  }
+}
+
+/* ========================= */
+/*   THEMES MANUELS          */
+/* ========================= */
+
+body.theme-light {
+  --bg: #f5f5f5;
+  --fg: #222;
+  --card: #ffffff;
+  --border: #ddd;
+  --accent: #3498db;
+}
+
+body.theme-dark {
+  --bg: #1e1e1e;
+  --fg: #eee;
+  --card: #2b2b2b;
+  --border: #444;
+  --accent: #9b59b6;
+}
+
+body.theme-blue {
+  --accent: #3498db;
+  --accent-light: #5dade2;
+}
+
+body.theme-green {
+  --accent: #2ecc71;
+  --accent-light: #58d68d;
+}
+
+body.theme-purple {
+  --accent: #9b59b6;
+  --accent-light: #bb8fce;
+}
+
+body.theme-red {
+  --accent: #e74c3c;
+  --accent-light: #ec7063;
+}
+
+/* ========================= */
+/*   GLOBAL                  */
+/* ========================= */
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: background 0.3s, color 0.3s;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: var(--card);
+  padding: 20px;
+  margin: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+/* ========================= */
+/*   SIDEBAR                 */
+/* ========================= */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100%;
+  background: var(--card);
+  box-shadow: 2px 0 6px var(--shadow);
+  padding: 20px;
+  transform: translateX(-100%);
+  transition: transform 0.3s;
+  z-index: 1000;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-section {
+  margin-top: 20px;
+}
+
+.sidebar-section h3 {
+  margin-bottom: 10px;
+}
+
+.sidebar button,
+.sidebar select,
+.sidebar input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sidebar input {
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+
+.hamburger {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  font-size: 26px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+/* ========================= */
+/*   CARTES (mode par défaut)*/
+/* ========================= */
+
+.cards-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.card-item {
+  background: var(--card);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 6px var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.card-item img {
+  width: 100%;
+  border-radius: 6px;
+}
+
+.card-item .score {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+}
+
+/* Mode compact */
+.compact .card-item img {
+  display: none;
+}
+
+.compact .card-item {
+  padding: 10px;
+}
+
+/* ========================= */
+/*   TABLEAU                 */
+/* ========================= */
+
+.table-view {
+  width: 95%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background: var(--card);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+.table-view.hidden {
+  display: none;
+}
+
+.table-view th,
+.table-view td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.table-view th {
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+
+.table-view tr:hover {
+  background: var(--accent-light);
+  color: white;
+}
+
+/* ========================= */
+/*   GRAPHIQUES              */
+/* ========================= */
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+  padding: 20px;
+}
+
+canvas {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+/* ========================= */
+/*   RESPONSIVE              */
+/* ========================= */
+
+@media (min-width: 900px) {
+  .charts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+</style>
 <meta charset="UTF-8">
 <title>Dashboard des Badges</title>
 
@@ -96,6 +371,301 @@
   </table>
 
 </div>
+
+<script>
+
+// =======================================
+// UTILITAIRES
+// =======================================
+
+function download(filename, text) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+  a.download = filename;
+  a.click();
+}
+
+function colorForScore(score) {
+  if (score >= 90) return "#2ecc71";
+  if (score >= 70) return "#f1c40f";
+  return "#e74c3c";
+}
+
+// =======================================
+// VARIABLES GLOBALES
+// =======================================
+
+let badgeData = [];
+let currentView = "cards"; // cards | table
+let compactMode = false;
+let sortState = {}; // tri multi-colonnes
+
+// =======================================
+// CHARGEMENT DES BADGES VIA API GITHUB
+// =======================================
+
+async function loadBadges() {
+  const repo = "arn51/nouveau_doc";
+  const branch = "gh-pages";
+
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/?ref=${branch}`;
+  const response = await fetch(apiUrl);
+  const files = await response.json();
+
+  const jsonFiles = files.filter(f => f.name.endsWith(".json") && f.name.startsWith("tests_"));
+
+  let scores = [];
+  let types = new Set();
+
+  for (const file of jsonFiles) {
+    const data = await (await fetch(file.download_url)).json();
+
+    if (data.type === undefined) continue;
+
+    const base = file.name.replace(".json", "");
+    const svg = base + ".svg";
+
+    const score = data.score ?? Math.round((data.success / data.tests) * 100);
+
+    scores.push(score);
+    types.add(data.type);
+
+    badgeData.push({
+      type: data.type,
+      score,
+      svg
+    });
+  }
+
+  scores = scores.filter(s => !isNaN(s));
+
+  updateSummary(scores);
+  populateFilters(types);
+  renderCards();
+  renderTable();
+  drawCharts(scores);
+}
+
+// =======================================
+// RÉSUMÉ GLOBAL
+// =======================================
+
+function updateSummary(scores) {
+  const total = scores.length;
+  const completed = scores.filter(s => s === 100).length;
+  const incomplete = total - completed;
+  const average = total > 0 ? (scores.reduce((a,b) => a+b, 0) / total).toFixed(2) : 0;
+
+  document.getElementById("total").innerText = `Nombre total de badges : ${total}`;
+  document.getElementById("completed").innerText = `Badges à 100% : ${completed}`;
+  document.getElementById("incomplete").innerText = `Badges incomplets : ${incomplete}`;
+  document.getElementById("average").innerText = `Score moyen : ${average}%`;
+  document.getElementById("updated").innerText = `Dernière mise à jour : ${new Date().toLocaleString("fr-FR")}`;
+}
+
+// =======================================
+// FILTRES
+// =======================================
+
+function populateFilters(types) {
+  const select = document.getElementById("filterType");
+  types.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t;
+    opt.textContent = t;
+    select.appendChild(opt);
+  });
+
+  select.addEventListener("change", applyFilters);
+  document.getElementById("searchInput").addEventListener("input", applyFilters);
+}
+
+function applyFilters() {
+  const typeFilter = document.getElementById("filterType").value;
+  const search = document.getElementById("searchInput").value.toLowerCase();
+
+  const filtered = badgeData.filter(b =>
+    (typeFilter === "all" || b.type === typeFilter) &&
+    (b.type.toLowerCase().includes(search) || String(b.score).includes(search))
+  );
+
+  renderCards(filtered);
+  renderTable(filtered);
+}
+
+// =======================================
+// MODE CARTES
+// =======================================
+
+function renderCards(data = badgeData) {
+  const container = document.getElementById("cardsContainer");
+  container.innerHTML = "";
+
+  data.forEach(b => {
+    const card = document.createElement("div");
+    card.className = "card-item";
+
+    card.innerHTML = `
+      <h3>${b.type}</h3>
+      <img src="${b.svg}">
+      <div class="score" style="background:${colorForScore(b.score)}">${b.score}%</div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  if (compactMode) container.classList.add("compact");
+  else container.classList.remove("compact");
+}
+
+// =======================================
+// MODE TABLEAU
+// =======================================
+
+function renderTable(data = badgeData) {
+  const body = document.getElementById("badgeBody");
+  body.innerHTML = "";
+
+  data.forEach(b => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${b.type}</td>
+      <td><img src="${b.svg}" style="max-width:120px"></td>
+      <td>${b.score}%</td>
+    `;
+    body.appendChild(row);
+  });
+}
+
+// =======================================
+// BASCULE CARTES / TABLEAU
+// =======================================
+
+document.getElementById("toggleView").addEventListener("click", () => {
+  currentView = currentView === "cards" ? "table" : "cards";
+
+  document.getElementById("cardsContainer").classList.toggle("hidden");
+  document.getElementById("badgeTable").classList.toggle("hidden");
+});
+
+// =======================================
+// MODE COMPACT
+// =======================================
+
+document.getElementById("toggleCompact").addEventListener("click", () => {
+  compactMode = !compactMode;
+  renderCards();
+});
+
+// =======================================
+// SIDEBAR
+// =======================================
+
+document.getElementById("openSidebar").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.add("open");
+});
+
+document.getElementById("closeSidebar").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.remove("open");
+});
+
+// =======================================
+// THEMES
+// =======================================
+
+document.querySelectorAll(".theme-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const theme = btn.dataset.theme;
+
+    document.body.className = "";
+    if (theme !== "auto") {
+      document.body.classList.add(`theme-${theme}`);
+    }
+
+    localStorage.setItem("theme", theme);
+  });
+});
+
+// Charger thème sauvegardé
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme && savedTheme !== "auto") {
+  document.body.classList.add(`theme-${savedTheme}`);
+}
+
+// =======================================
+// EXPORTS
+// =======================================
+
+document.getElementById("exportCSV").addEventListener("click", () => {
+  let csv = "type,score\n";
+  badgeData.forEach(b => csv += `${b.type},${b.score}\n`);
+  download("badges.csv", csv);
+});
+
+document.getElementById("exportJSON").addEventListener("click", () => {
+  download("badges.json", JSON.stringify(badgeData, null, 2));
+});
+
+document.getElementById("exportMD").addEventListener("click", () => {
+  let md = "# Résultats des badges\n\n| Type | Score |\n|------|-------|\n";
+  badgeData.forEach(b => md += `| ${b.type} | ${b.score}% |\n`);
+  download("badges.md", md);
+});
+
+// =======================================
+// GRAPHIQUES
+// =======================================
+
+function drawCharts(scores) {
+  // Barres
+  new Chart(document.getElementById("chartBars"), {
+    type: "bar",
+    data: {
+      labels: badgeData.map(b => b.type),
+      datasets: [{
+        label: "Score (%)",
+        data: badgeData.map(b => b.score),
+        backgroundColor: badgeData.map(b => colorForScore(b.score))
+      }]
+    },
+    options: { animation: { duration: 800 } }
+  });
+
+  // Radar
+  new Chart(document.getElementById("chartRadar"), {
+    type: "radar",
+    data: {
+      labels: badgeData.map(b => b.type),
+      datasets: [{
+        label: "Score par type",
+        data: badgeData.map(b => b.score),
+        backgroundColor: "rgba(46, 204, 113, 0.3)",
+        borderColor: "#2ecc71",
+        borderWidth: 2
+      }]
+    }
+  });
+
+  // Donut
+  new Chart(document.getElementById("chartDonut"), {
+    type: "doughnut",
+    data: {
+      labels: badgeData.map(b => b.type),
+      datasets: [{
+        data: badgeData.map(b => b.score),
+        backgroundColor: badgeData.map(b => colorForScore(b.score))
+      }]
+    }
+  });
+}
+
+// =======================================
+// LANCEMENT
+// =======================================
+
+loadBadges();
+
+</script>
 
 </body>
 </html>
