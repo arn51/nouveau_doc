@@ -284,6 +284,11 @@ canvas {
   }
 }
 
+canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
 </style>
 </head>
 <body>
@@ -674,6 +679,11 @@ function drawCharts(scores) {
 // =======================================
 // LANCEMENT
 // =======================================
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    drawCharts(badgeData.map(b => b.score));
+  }, 200);
+});
 
 loadBadges();
 
