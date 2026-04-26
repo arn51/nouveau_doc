@@ -284,9 +284,11 @@ canvas {
   }
 }
 
+/* Fix Brave/Firefox: force canvas to have a real size */
 canvas {
   width: 100% !important;
-  height: auto !important;
+  height: 300px !important;
+  display: block;
 }
 
 </style>
@@ -679,10 +681,13 @@ function drawCharts(scores) {
 // =======================================
 // LANCEMENT
 // =======================================
+// Fix Brave/Firefox: redraw after layout stabilizes
 window.addEventListener("load", () => {
   setTimeout(() => {
-    drawCharts(badgeData.map(b => b.score));
-  }, 200);
+    if (badgeData.length > 0) {
+      drawCharts(badgeData.map(b => b.score));
+    }
+  }, 300);
 });
 
 loadBadges();
