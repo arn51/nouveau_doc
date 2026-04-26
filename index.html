@@ -6,7 +6,9 @@
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
+
 /* ========================= */
 /*   VARIABLES DE BASE       */
 /* ========================= */
@@ -285,7 +287,6 @@ canvas {
 </style>
 </head>
 <body>
-
 <!-- ========================= -->
 <!--   SIDEBAR (rétractée)     -->
 <!-- ========================= -->
@@ -372,7 +373,6 @@ canvas {
   </table>
 
 </div>
-
 <script>
 
 // =======================================
@@ -397,9 +397,8 @@ function colorForScore(score) {
 // =======================================
 
 let badgeData = [];
-let currentView = "cards"; // cards | table
+let currentView = "cards"; 
 let compactMode = false;
-let sortState = {}; // tri multi-colonnes
 
 // =======================================
 // CHARGEMENT DES BADGES VIA API GITHUB
@@ -421,7 +420,7 @@ async function loadBadges() {
   for (const file of jsonFiles) {
     const data = await (await fetch(file.download_url)).json();
 
-    if (data.type === undefined) continue;
+    if (!data.type) continue;
 
     const base = file.name.replace(".json", "");
     const svg = base + ".svg";
@@ -681,4 +680,3 @@ loadBadges();
 </script>
 </body>
 </html>
-
