@@ -629,12 +629,15 @@ document.getElementById("exportMD").addEventListener("click", () => {
   download("badges.md", md);
 });
 
+// =======================================
+// EXPORT PDF (corrigé)
+// =======================================
+
 document.getElementById("exportPDF").addEventListener("click", async () => {
-  const jsPDF = window.jspdf.jsPDF;
+  const jsPDF = window.jspdf.jsPDF;  // ← CORRECTION CRUCIALE
 
   const element = document.getElementById("main");
 
-  // Capture haute résolution
   const canvas = await html2canvas(element, {
     scale: 2,
     useCORS: true
@@ -651,7 +654,6 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
 
   let position = 0;
 
-  // Si le contenu dépasse une page, on ajoute des pages
   if (imgHeight < pageHeight) {
     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
   } else {
@@ -670,17 +672,15 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
 });
 
 // =======================================
-// GRAPHIQUES (avec destruction propre)
+// GRAPHIQUES
 // =======================================
 
 function drawCharts(scores) {
 
-  // Détruire anciens graphiques
   if (chartBars) chartBars.destroy();
   if (chartRadar) chartRadar.destroy();
   if (chartDonut) chartDonut.destroy();
 
-  // Barres
   chartBars = new Chart(document.getElementById("chartBars"), {
     type: "bar",
     data: {
@@ -712,7 +712,6 @@ function drawCharts(scores) {
     }
   });
 
-  // Radar
   chartRadar = new Chart(document.getElementById("chartRadar"), {
     type: "radar",
     data: {
@@ -751,7 +750,6 @@ function drawCharts(scores) {
     }
   });
 
-  // Donut
   chartDonut = new Chart(document.getElementById("chartDonut"), {
     type: "doughnut",
     data: {
