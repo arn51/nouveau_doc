@@ -630,7 +630,7 @@ document.getElementById("exportMD").addEventListener("click", () => {
 });
 
 document.getElementById("exportPDF").addEventListener("click", async () => {
-  const { jsPDF } = window.jspdf.jsPDF;
+  const jsPDF = window.jspdf.jsPDF;
 
   const element = document.getElementById("main");
 
