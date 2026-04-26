@@ -14,23 +14,25 @@
 /* ========================= */
 
 :root {
-  --bg: #f5f5f5;
-  --fg: #222;
+  --bg: #f4f6f9;
+  --fg: #1e1e1e;
   --card: #ffffff;
-  --border: #ddd;
+  --border: #dcdcdc;
   --accent: #3498db;
   --accent-light: #5dade2;
-  --shadow: rgba(0,0,0,0.15);
+  --shadow: rgba(0,0,0,0.12);
+  --radius: 12px;
+  --transition: 0.25s ease;
 }
 
 /* Mode sombre auto */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1e1e1e;
-    --fg: #eee;
-    --card: #2b2b2b;
+    --bg: #1b1b1b;
+    --fg: #eaeaea;
+    --card: #262626;
     --border: #444;
-    --shadow: rgba(0,0,0,0.4);
+    --shadow: rgba(0,0,0,0.45);
   }
 }
 
@@ -39,19 +41,17 @@
 /* ========================= */
 
 body.theme-light {
-  --bg: #f5f5f5;
-  --fg: #222;
+  --bg: #f4f6f9;
+  --fg: #1e1e1e;
   --card: #ffffff;
-  --border: #ddd;
-  --accent: #3498db;
+  --border: #dcdcdc;
 }
 
 body.theme-dark {
-  --bg: #1e1e1e;
-  --fg: #eee;
-  --card: #2b2b2b;
+  --bg: #1b1b1b;
+  --fg: #eaeaea;
+  --card: #262626;
   --border: #444;
-  --accent: #9b59b6;
 }
 
 body.theme-blue {
@@ -81,24 +81,33 @@ body.theme-red {
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: Arial, sans-serif;
+  font-family: "Inter", Arial, sans-serif;
   margin: 0;
   padding: 0;
-  transition: background 0.3s, color 0.3s;
+  transition: background var(--transition), color var(--transition);
 }
 
 h1 {
   text-align: center;
-  margin-top: 30px;
-  margin-bottom: 20px;
+  margin-top: 35px;
+  margin-bottom: 25px;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .card {
   background: var(--card);
-  padding: 20px;
+  padding: 25px;
   margin: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px var(--shadow);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px var(--shadow);
 }
 
 /* ========================= */
@@ -109,18 +118,18 @@ h1 {
   position: fixed;
   top: 0;
   left: 0;
-  width: 260px;
+  width: 270px;
   height: 100%;
   background: var(--card);
-  box-shadow: 2px 0 6px var(--shadow);
-  padding: 20px;
+  box-shadow: 2px 0 10px var(--shadow);
+  padding: 25px;
   transform: translateX(-100%);
-  transition: transform 0.3s;
+  transition: transform 0.35s ease;
   z-index: 1000;
 
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px;
   overflow-y: auto;
 }
 
@@ -132,25 +141,31 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px;
 }
 
-.sidebar-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.sidebar-section h3 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .sidebar button,
 .sidebar select,
 .sidebar input {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background: var(--accent);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius);
   cursor: pointer;
+  font-size: 1rem;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.sidebar button:hover {
+  background: var(--accent-light);
+  transform: translateY(-2px);
 }
 
 .sidebar input {
@@ -161,16 +176,22 @@ h1 {
 
 .hamburger {
   position: fixed;
-  top: 15px;
-  left: 15px;
+  top: 18px;
+  left: 18px;
   font-size: 26px;
   background: var(--accent);
   color: white;
   border: none;
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: var(--radius);
   cursor: pointer;
   z-index: 1100;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.hamburger:hover {
+  background: var(--accent-light);
+  transform: scale(1.05);
 }
 
 /* ========================= */
@@ -180,35 +201,36 @@ h1 {
 .cards-view {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  gap: 25px;
   padding: 20px;
 }
 
 .card-item {
   background: var(--card);
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 2px 6px var(--shadow);
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: 0 3px 10px var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
 }
 
 .card-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px var(--shadow);
+  box-shadow: 0 6px 16px var(--shadow);
 }
 
 .card-item img {
   width: 100%;
-  border-radius: 6px;
+  border-radius: var(--radius);
 }
 
 .card-item .score {
   display: inline-block;
-  margin-top: 10px;
-  padding: 6px 12px;
-  border-radius: 6px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
   color: white;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 1rem;
 }
 
 /* ========================= */
@@ -217,12 +239,12 @@ h1 {
 
 .table-view {
   width: 95%;
-  margin: 20px auto;
+  margin: 25px auto;
   border-collapse: collapse;
   background: var(--card);
-  border-radius: 10px;
+  border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 2px 6px var(--shadow);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .table-view.hidden {
@@ -231,15 +253,17 @@ h1 {
 
 .table-view th,
 .table-view td {
-  padding: 12px;
+  padding: 14px;
   border-bottom: 1px solid var(--border);
   text-align: center;
+  font-size: 1rem;
 }
 
 .table-view th {
   background: var(--accent);
   color: white;
   cursor: pointer;
+  font-weight: 700;
 }
 
 .table-view tr:hover {
@@ -254,17 +278,25 @@ h1 {
 .charts {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 30px;
+  gap: 35px;
   padding: 20px;
 }
 
-/* Fix Brave/Firefox */
+/* Fix Brave/Firefox + lisibilité */
 canvas {
   width: 100% !important;
-  height: 320px !important;
-  min-height: 320px !important;
+  height: 340px !important;
+  min-height: 340px !important;
   display: block !important;
   box-sizing: border-box !important;
+
+  image-rendering: optimizeQuality;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+.chartjs-render-monitor {
+  font-weight: 600 !important;
 }
 
 /* ========================= */
@@ -368,7 +400,6 @@ canvas {
   </table>
 
 </div>
-
 <script>
 
 // =======================================
@@ -617,7 +648,25 @@ function drawCharts(scores) {
         backgroundColor: badgeData.map(b => colorForScore(b.score))
       }]
     },
-    options: { animation: { duration: 800 } }
+    options: {
+      plugins: {
+        legend: {
+          labels: {
+            color: "#000",
+            font: { size: 14, weight: "bold" }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: "#000", font: { size: 14, weight: "bold" } }
+        },
+        y: {
+          ticks: { color: "#000", font: { size: 14, weight: "bold" } }
+        }
+      },
+      animation: { duration: 800 }
+    }
   });
 
   // Radar
@@ -634,8 +683,24 @@ function drawCharts(scores) {
       }]
     },
     options: {
+      plugins: {
+        legend: {
+          labels: {
+            color: "#000",
+            font: { size: 14, weight: "bold" }
+          }
+        }
+      },
       scales: {
         r: {
+          ticks: {
+            color: "#000",
+            font: { size: 14, weight: "bold" }
+          },
+          pointLabels: {
+            color: "#000",
+            font: { size: 14, weight: "bold" }
+          },
           beginAtZero: true,
           max: 100
         }
@@ -654,6 +719,14 @@ function drawCharts(scores) {
       }]
     },
     options: {
+      plugins: {
+        legend: {
+          labels: {
+            color: "#000",
+            font: { size: 14, weight: "bold" }
+          }
+        }
+      },
       animation: { duration: 800 }
     }
   });
@@ -695,4 +768,3 @@ loadBadges();
 </script>
 </body>
 </html>
- 
