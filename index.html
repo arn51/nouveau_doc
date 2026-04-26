@@ -102,7 +102,7 @@ h1 {
 }
 
 /* ========================= */
-/*   SIDEBAR (corrigée)      */
+/*   SIDEBAR                 */
 /* ========================= */
 
 .sidebar {
@@ -211,15 +211,6 @@ h1 {
   font-weight: bold;
 }
 
-/* Mode compact */
-.compact .card-item img {
-  display: none;
-}
-
-.compact .card-item {
-  padding: 10px;
-}
-
 /* ========================= */
 /*   TABLEAU                 */
 /* ========================= */
@@ -267,11 +258,13 @@ h1 {
   padding: 20px;
 }
 
+/* Fix Brave/Firefox */
 canvas {
-  background: var(--card);
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px var(--shadow);
+  width: 100% !important;
+  height: 320px !important;
+  min-height: 320px !important;
+  display: block !important;
+  box-sizing: border-box !important;
 }
 
 /* ========================= */
@@ -284,21 +277,17 @@ canvas {
   }
 }
 
-/* Fix Brave/Firefox: force canvas to have a real size */
-canvas {
-  width: 100% !important;
-  height: 320px !important;
-  min-height: 320px !important;
-  display: block !important;
-}
-
 </style>
 </head>
 <body>
+
 <!-- ========================= -->
-<!--   SIDEBAR (rétractée)     -->
+<!--   SIDEBAR                 -->
 <!-- ========================= -->
-<div id="sidebar" class="sidebar collapsed">
+
+<button id="openSidebar" class="hamburger">☰</button>
+
+<div id="sidebar" class="sidebar">
   <div class="sidebar-header">
     <h2>Menu</h2>
     <button id="closeSidebar">✖</button>
@@ -338,12 +327,10 @@ canvas {
   </div>
 </div>
 
-<!-- Bouton hamburger -->
-<button id="openSidebar" class="hamburger">☰</button>
-
 <!-- ========================= -->
 <!--   CONTENU PRINCIPAL       -->
 <!-- ========================= -->
+
 <div id="main">
 
   <h1>Dashboard des Badges</h1>
@@ -360,9 +347,9 @@ canvas {
 
   <!-- Graphiques -->
   <div class="charts">
-    <canvas id="chartBars" height="80"></canvas>
-    <canvas id="chartRadar" height="120"></canvas>
-    <canvas id="chartDonut" height="120"></canvas>
+    <canvas id="chartBars"></canvas>
+    <canvas id="chartRadar"></canvas>
+    <canvas id="chartDonut"></canvas>
   </div>
 
   <!-- Mode cartes -->
@@ -381,24 +368,8 @@ canvas {
   </table>
 
 </div>
+
 <script>
-
-// =======================================
-// UTILITAIRES
-// =======================================
-
-function download(filename, text) {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-  a.download = filename;
-  a.click();
-}
-
-function colorForScore(score) {
-  if (score >= 90) return "#2ecc71";
-  if (score >= 70) return "#f1c40f";
-  return "#e74c3c";
-}
 
 // =======================================
 // VARIABLES GLOBALES
@@ -407,6 +378,10 @@ function colorForScore(score) {
 let badgeData = [];
 let currentView = "cards"; 
 let compactMode = false;
+
+let chartBars = null;
+let chartRadar = null;
+let chartDonut = null;
 
 // =======================================
 // CHARGEMENT DES BADGES VIA API GITHUB
@@ -621,13 +596,18 @@ document.getElementById("exportMD").addEventListener("click", () => {
 });
 
 // =======================================
-// GRAPHIQUES
+// GRAPHIQUES (avec destruction propre)
 // =======================================
 
 function drawCharts(scores) {
 
+  // Détruire anciens graphiques
+  if (chartBars) chartBars.destroy();
+  if (chartRadar) chartRadar.destroy();
+  if (chartDonut) chartDonut.destroy();
+
   // Barres
-  new Chart(document.getElementById("chartBars"), {
+  chartBars = new Chart(document.getElementById("chartBars"), {
     type: "bar",
     data: {
       labels: badgeData.map(b => b.type),
@@ -641,7 +621,7 @@ function drawCharts(scores) {
   });
 
   // Radar
-  new Chart(document.getElementById("chartRadar"), {
+  chartRadar = new Chart(document.getElementById("chartRadar"), {
     type: "radar",
     data: {
       labels: badgeData.map(b => b.type),
@@ -664,7 +644,7 @@ function drawCharts(scores) {
   });
 
   // Donut
-  new Chart(document.getElementById("chartDonut"), {
+  chartDonut = new Chart(document.getElementById("chartDonut"), {
     type: "doughnut",
     data: {
       labels: badgeData.map(b => b.type),
@@ -680,26 +660,39 @@ function drawCharts(scores) {
 }
 
 // =======================================
-// LANCEMENT
+// UTILITAIRES
 // =======================================
-// Fix Brave/Firefox: redraw after layout stabilizes
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    if (badgeData.length > 0) {
-      drawCharts(badgeData.map(b => b.score));
-    }
-  }, 400);
-});
 
-// Fix Brave/Firefox: redraw on resize
+function download(filename, text) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+  a.download = filename;
+  a.click();
+}
+
+function colorForScore(score) {
+  if (score >= 90) return "#2ecc71";
+  if (score >= 70) return "#f1c40f";
+  return "#e74c3c";
+}
+
+// =======================================
+// FIX BRAVE / FIREFOX : REDRAW SUR RESIZE
+// =======================================
+
 window.addEventListener("resize", () => {
   if (badgeData.length > 0) {
     drawCharts(badgeData.map(b => b.score));
   }
 });
 
+// =======================================
+// LANCEMENT
+// =======================================
+
 loadBadges();
 
 </script>
 </body>
 </html>
+ 
