@@ -287,8 +287,9 @@ canvas {
 /* Fix Brave/Firefox: force canvas to have a real size */
 canvas {
   width: 100% !important;
-  height: 300px !important;
-  display: block;
+  height: 320px !important;
+  min-height: 320px !important;
+  display: block !important;
 }
 
 </style>
@@ -687,7 +688,14 @@ window.addEventListener("load", () => {
     if (badgeData.length > 0) {
       drawCharts(badgeData.map(b => b.score));
     }
-  }, 300);
+  }, 400);
+});
+
+// Fix Brave/Firefox: redraw on resize
+window.addEventListener("resize", () => {
+  if (badgeData.length > 0) {
+    drawCharts(badgeData.map(b => b.score));
+  }
 });
 
 loadBadges();
