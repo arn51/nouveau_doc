@@ -6,9 +6,7 @@
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-
 /* ========================= */
 /*   VARIABLES DE BASE       */
 /* ========================= */
@@ -118,7 +116,6 @@ h1 {
   transition: transform 0.3s;
   z-index: 1000;
 
-  /* CORRECTION DU VIDE */
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -175,7 +172,7 @@ h1 {
 }
 
 /* ========================= */
-/*   CARTES (mode par défaut)*/
+/*   CARTES                  */
 /* ========================= */
 
 .cards-view {
@@ -621,6 +618,7 @@ document.getElementById("exportMD").addEventListener("click", () => {
 // =======================================
 
 function drawCharts(scores) {
+
   // Barres
   new Chart(document.getElementById("chartBars"), {
     type: "bar",
@@ -638,26 +636,25 @@ function drawCharts(scores) {
   // Radar
   new Chart(document.getElementById("chartRadar"), {
     type: "radar",
-      data: {
-        labels: badgeData.map(b => b.type),
-        datasets: [{
-          label: "Score par type",
-          data: badgeData.map(b => b.score),
-          backgroundColor: "rgba(46, 204, 113, 0.3)",
-          borderColor: "#2ecc71",
-          borderWidth: 2
-        }]
-      },
-      options: {
-        scales: {
-          r: {
-            beginAtZero: true,
-            max: 100
-          }
+    data: {
+      labels: badgeData.map(b => b.type),
+      datasets: [{
+        label: "Score par type",
+        data: badgeData.map(b => b.score),
+        backgroundColor: "rgba(46, 204, 113, 0.3)",
+        borderColor: "#2ecc71",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100
         }
       }
     }
-  );
+  });
 
   // Donut
   new Chart(document.getElementById("chartDonut"), {
@@ -682,4 +679,6 @@ function drawCharts(scores) {
 loadBadges();
 
 </script>
+</body>
+</html>
 
