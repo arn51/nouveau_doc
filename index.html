@@ -636,4 +636,50 @@ function drawCharts(scores) {
   });
 
   // Radar
-  new Chart(document.getElementById("chartRadar"),
+  new Chart(document.getElementById("chartRadar"), {
+    type: "radar",
+      data: {
+        labels: badgeData.map(b => b.type),
+        datasets: [{
+          label: "Score par type",
+          data: badgeData.map(b => b.score),
+          backgroundColor: "rgba(46, 204, 113, 0.3)",
+          borderColor: "#2ecc71",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        scales: {
+          r: {
+            beginAtZero: true,
+            max: 100
+          }
+        }
+      }
+    }
+  );
+
+  // Donut
+  new Chart(document.getElementById("chartDonut"), {
+    type: "doughnut",
+    data: {
+      labels: badgeData.map(b => b.type),
+      datasets: [{
+        data: badgeData.map(b => b.score),
+        backgroundColor: badgeData.map(b => colorForScore(b.score))
+      }]
+    },
+    options: {
+      animation: { duration: 800 }
+    }
+  });
+}
+
+// =======================================
+// LANCEMENT
+// =======================================
+
+loadBadges();
+
+</script>
+
