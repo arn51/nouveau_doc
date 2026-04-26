@@ -629,6 +629,46 @@ document.getElementById("exportMD").addEventListener("click", () => {
   download("badges.md", md);
 });
 
+document.getElementById("exportPDF").addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+
+  const element = document.getElementById("main");
+
+  // Capture haute résolution
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let position = 0;
+
+  // Si le contenu dépasse une page, on ajoute des pages
+  if (imgHeight < pageHeight) {
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  } else {
+    let heightLeft = imgHeight;
+
+    while (heightLeft > 0) {
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      position -= pageHeight;
+
+      if (heightLeft > 0) pdf.addPage();
+    }
+  }
+
+  pdf.save("dashboard_badges.pdf");
+});
+
 // =======================================
 // GRAPHIQUES (avec destruction propre)
 // =======================================
