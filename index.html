@@ -639,6 +639,15 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
   // Logo Base64
   const logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZIAAAFsCAYAAADmGj+TAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADHRFWHRsb2dpY2FsWAA2MzSsyXqAAAAADHRFWHRsb2dpY2FsWQAzMzJ+ATTuAAAAC3RFWHRzY3JlZW4ARFAtMRMsA0kAACAASURBVHic... (suite dans PARTIE 2)";
 
+  // On charge le logo AVANT de créer le PDF
+  const logoImg = new Image();
+  logoImg.src = logoBase64;
+
+  // On attend que le logo soit prêt
+  await new Promise(resolve => {
+    logoImg.onload = resolve;
+  });
+
   const element = document.getElementById("main");
 
   const canvas = await html2canvas(element, {
@@ -655,7 +664,7 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
   const margin = 10;
   const headerHeight = 30;
   const footerHeight = 15;
-
+  
 function addHeader() {
   pdf.setFontSize(18);
   pdf.text("Dashboard des Badges", margin, 15);
