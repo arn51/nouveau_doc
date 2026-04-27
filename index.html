@@ -630,7 +630,7 @@ document.getElementById("exportMD").addEventListener("click", () => {
 });
 
 // =======================================
-// EXPORT PDF PRO (avec logo) — PARTIE 1
+// EXPORT PDF PRO FINAL (avec logo auto-redimensionné)
 // =======================================
 
 document.getElementById("exportPDF").addEventListener("click", async () => {
@@ -639,15 +639,20 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
   // Logo Base64
   const logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZIAAAFsCAYAAADmGj+TAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADHRFWHRsb2dpY2FsWAA2MzSsyXqAAAAADHRFWHRsb2dpY2FsWQAzMzJ+ATTuAAAAC3RFWHRzY3JlZW4ARFAtMRMsA0kAACAASURBVHic... (suite dans PARTIE 2)";
 
-  // On charge le logo AVANT de créer le PDF
+  // ============================
+  // CHARGEMENT DU LOGO AVANT PDF
+  // ============================
   const logoImg = new Image();
   logoImg.src = logoBase64;
 
-  // On attend que le logo soit prêt
+  // On attend que le logo soit chargé
   await new Promise(resolve => {
     logoImg.onload = resolve;
   });
 
+  // ============================
+  // CAPTURE DE LA PAGE
+  // ============================
   const element = document.getElementById("main");
 
   const canvas = await html2canvas(element, {
@@ -664,59 +669,45 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
   const margin = 10;
   const headerHeight = 30;
   const footerHeight = 15;
-  
-function addHeader() {
-  pdf.setFontSize(18);
-  pdf.text("Dashboard des Badges", margin, 15);
-
-  pdf.setFontSize(11);
-  pdf.text("Export PDF généré automatiquement", margin, 22);
-
-  pdf.setFontSize(10);
-  pdf.text("Date : " + new Date().toLocaleString("fr-FR"), pageWidth - 60, 22);
 
   // ============================
-  // LOGO AUTO-REDIMENSIONNÉ
+  // EN-TÊTE PRO (avec logo auto-redimensionné)
   // ============================
+  function addHeader() {
+    pdf.setFontSize(18);
+    pdf.text("Dashboard des Badges", margin, 15);
 
-  // Taille max autorisée (en mm)
-  const maxLogoSize = 25;
+    pdf.setFontSize(11);
+    pdf.text("Export PDF généré automatiquement", margin, 22);
 
-  // Création d’un objet Image pour lire la taille réelle
-  const img = new Image();
-  img.src = logoBase64;
+    pdf.setFontSize(10);
+    pdf.text("Date : " + new Date().toLocaleString("fr-FR"), pageWidth - 60, 22);
 
-  // On attend que l’image soit chargée
-  img.onload = () => {
-    const realW = img.width;
-    const realH = img.height;
+    // --- Redimensionnement automatique du logo ---
+    const maxLogoSize = 25; // mm
 
-    // Ratio largeur/hauteur
+    const realW = logoImg.width;
+    const realH = logoImg.height;
     const ratio = realW / realH;
 
     let finalW = maxLogoSize;
     let finalH = maxLogoSize;
 
-    // Ajustement proportionnel
     if (ratio > 1) {
-      // Logo horizontal
       finalH = maxLogoSize / ratio;
     } else {
-      // Logo vertical
       finalW = maxLogoSize * ratio;
     }
 
-    // Position en haut à droite
     const posX = pageWidth - finalW - 10;
     const posY = 5;
 
-    pdf.addImage(logoBase64, "PNG", posX, posY, finalW, finalH);
+    pdf.addImage(logoImg, "PNG", posX, posY, finalW, finalH);
 
     // Ligne de séparation
     pdf.setLineWidth(0.3);
     pdf.line(margin, headerHeight, pageWidth - margin, headerHeight);
-  };
-}
+  }
 
   // ============================
   // PIED DE PAGE PRO
@@ -743,7 +734,6 @@ function addHeader() {
   // ============================
   // CONTENU PRINCIPAL
   // ============================
-
   const imgWidth = pageWidth - margin * 2;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -751,16 +741,14 @@ function addHeader() {
   let pageNumber = 1;
 
   addHeader();
-  // ============================
-  // MULTI‑PAGES
-  // ============================
 
+  // ============================
+  // MULTI-PAGES
+  // ============================
   if (imgHeight <= pageHeight - headerHeight - footerHeight) {
-    // Une seule page
     pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
     addFooter(pageNumber);
   } else {
-    // Plusieurs pages
     let heightLeft = imgHeight;
 
     while (heightLeft > 0) {
@@ -778,10 +766,10 @@ function addHeader() {
       }
     }
   }
+
   // ============================
   // SAUVEGARDE
   // ============================
-
   pdf.save("dashboard_badges.pdf");
 });
 
