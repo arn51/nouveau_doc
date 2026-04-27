@@ -656,22 +656,59 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
   const headerHeight = 30;
   const footerHeight = 15;
 
-  function addHeader() {
-    pdf.setFontSize(18);
-    pdf.text("Dashboard des Badges", margin, 15);
+function addHeader() {
+  pdf.setFontSize(18);
+  pdf.text("Dashboard des Badges", margin, 15);
 
-    pdf.setFontSize(11);
-    pdf.text("Export PDF généré automatiquement", margin, 22);
+  pdf.setFontSize(11);
+  pdf.text("Export PDF généré automatiquement", margin, 22);
 
-    pdf.setFontSize(10);
-    pdf.text("Date : " + new Date().toLocaleString("fr-FR"), pageWidth - 60, 22);
+  pdf.setFontSize(10);
+  pdf.text("Date : " + new Date().toLocaleString("fr-FR"), pageWidth - 60, 22);
 
-    // Ajout du logo
-    pdf.addImage(logoBase64, "PNG", pageWidth - 35, 5, 25, 25);
+  // ============================
+  // LOGO AUTO-REDIMENSIONNÉ
+  // ============================
 
+  // Taille max autorisée (en mm)
+  const maxLogoSize = 25;
+
+  // Création d’un objet Image pour lire la taille réelle
+  const img = new Image();
+  img.src = logoBase64;
+
+  // On attend que l’image soit chargée
+  img.onload = () => {
+    const realW = img.width;
+    const realH = img.height;
+
+    // Ratio largeur/hauteur
+    const ratio = realW / realH;
+
+    let finalW = maxLogoSize;
+    let finalH = maxLogoSize;
+
+    // Ajustement proportionnel
+    if (ratio > 1) {
+      // Logo horizontal
+      finalH = maxLogoSize / ratio;
+    } else {
+      // Logo vertical
+      finalW = maxLogoSize * ratio;
+    }
+
+    // Position en haut à droite
+    const posX = pageWidth - finalW - 10;
+    const posY = 5;
+
+    pdf.addImage(logoBase64, "PNG", posX, posY, finalW, finalH);
+
+    // Ligne de séparation
     pdf.setLineWidth(0.3);
     pdf.line(margin, headerHeight, pageWidth - margin, headerHeight);
-  }
+  };
+}
+
   // ============================
   // PIED DE PAGE PRO
   // ============================
