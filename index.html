@@ -630,125 +630,114 @@ document.getElementById("exportMD").addEventListener("click", () => {
 });
 
 // =======================================
-// EXPORT PDF PRO COMPLET
+// EXPORT PDF PRO (avec logo) — PARTIE 1
 // =======================================
 
-document.addEventListener("DOMContentLoaded", () => {
-  const exportBtn = document.getElementById("exportPDF");
-  if (!exportBtn) {
-    console.error('Bouton #exportPDF introuvable dans le DOM.');
-    return;
+document.getElementById("exportPDF").addEventListener("click", async () => {
+  const jsPDF = window.jspdf.jsPDF;
+
+  // Logo Base64
+  const logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZIAAAFsCAYAAADmGj+TAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADHRFWHRsb2dpY2FsWAA2MzSsyXqAAAAADHRFWHRsb2dpY2FsWQAzMzJ+ATTuAAAAC3RFWHRzY3JlZW4ARFAtMRMsA0kAACAASURBVHic... (suite dans PARTIE 2)";
+
+  const element = document.getElementById("main");
+
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const margin = 10;
+  const headerHeight = 30;
+  const footerHeight = 15;
+
+  function addHeader() {
+    pdf.setFontSize(18);
+    pdf.text("Dashboard des Badges", margin, 15);
+
+    pdf.setFontSize(11);
+    pdf.text("Export PDF généré automatiquement", margin, 22);
+
+    pdf.setFontSize(10);
+    pdf.text("Date : " + new Date().toLocaleString("fr-FR"), pageWidth - 60, 22);
+
+    // Ajout du logo
+    pdf.addImage(logoBase64, "PNG", pageWidth - 35, 5, 25, 25);
+
+    pdf.setLineWidth(0.3);
+    pdf.line(margin, headerHeight, pageWidth - margin, headerHeight);
+  }
+  // ============================
+  // PIED DE PAGE PRO
+  // ============================
+  function addFooter(pageNumber) {
+    pdf.setLineWidth(0.3);
+    pdf.line(
+      margin,
+      pageHeight - footerHeight,
+      pageWidth - margin,
+      pageHeight - footerHeight
+    );
+
+    pdf.setFontSize(10);
+    pdf.text("Page " + pageNumber, margin, pageHeight - 5);
+
+    pdf.text(
+      "Document généré automatiquement — Loïc",
+      pageWidth - 80,
+      pageHeight - 5
+    );
   }
 
-  exportBtn.addEventListener("click", async () => {
-    const jsPDF = window.jspdf.jsPDF;
-    const element = document.getElementById("main");
+  // ============================
+  // CONTENU PRINCIPAL
+  // ============================
 
-    if (!element) {
-      console.error('Conteneur #main introuvable pour la capture.');
-      return;
-    }
+  const imgWidth = pageWidth - margin * 2;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    // ============================
-    // CAPTURE HAUTE RÉSOLUTION
-    // ============================
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true
-    });
+  let position = headerHeight + 5;
+  let pageNumber = 1;
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
+  addHeader();
+  // ============================
+  // MULTI‑PAGES
+  // ============================
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+  if (imgHeight <= pageHeight - headerHeight - footerHeight) {
+    // Une seule page
+    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+    addFooter(pageNumber);
+  } else {
+    // Plusieurs pages
+    let heightLeft = imgHeight;
 
-    const margin = 10;
-    const headerHeight = 25;
-    const footerHeight = 15;
-
-    // ============================
-    // EN-TÊTE PRO
-    // ============================
-    function addHeader() {
-      pdf.setFontSize(18);
-      pdf.text("Dashboard des Badges", margin, 15);
-
-      pdf.setFontSize(11);
-      pdf.text("Export PDF généré automatiquement", margin, 22);
-
-      pdf.setFontSize(10);
-      pdf.text(
-        "Date : " + new Date().toLocaleString("fr-FR"),
-        pageWidth - 60,
-        22
-      );
-
-      pdf.setLineWidth(0.3);
-      pdf.line(margin, headerHeight, pageWidth - margin, headerHeight);
-    }
-
-    // ============================
-    // PIED DE PAGE PRO
-    // ============================
-    function addFooter(pageNumber) {
-      pdf.setLineWidth(0.3);
-      pdf.line(
-        margin,
-        pageHeight - footerHeight,
-        pageWidth - margin,
-        pageHeight - footerHeight
-      );
-
-      pdf.setFontSize(10);
-      pdf.text("Page " + pageNumber, margin, pageHeight - 5);
-
-      pdf.text(
-        "Document généré automatiquement — Loïc",
-        pageWidth - 80,
-        pageHeight - 5
-      );
-    }
-
-    // ============================
-    // CONTENU PRINCIPAL
-    // ============================
-    const imgWidth = pageWidth - margin * 2;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    let position = headerHeight + 5;
-    let pageNumber = 1;
-
-    addHeader();
-
-    if (imgHeight <= pageHeight - headerHeight - footerHeight) {
-      // Une seule page
+    while (heightLeft > 0) {
       pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+
       addFooter(pageNumber);
-    } else {
-      // Multi-pages
-      let heightLeft = imgHeight;
 
-      while (heightLeft > 0) {
-        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - headerHeight - footerHeight);
+      position -= (pageHeight - headerHeight - footerHeight);
 
-        addFooter(pageNumber);
-
-        heightLeft -= (pageHeight - headerHeight - footerHeight);
-        position -= (pageHeight - headerHeight - footerHeight);
-
-        if (heightLeft > 0) {
-          pdf.addPage();
-          pageNumber++;
-          addHeader();
-        }
+      if (heightLeft > 0) {
+        pdf.addPage();
+        pageNumber++;
+        addHeader();
       }
     }
+  }
+  // ============================
+  // SAUVEGARDE
+  // ============================
 
-    pdf.save("dashboard_badges.pdf");
-  });
+  pdf.save("dashboard_badges.pdf");
 });
-
 
 // =======================================
 // GRAPHIQUES
