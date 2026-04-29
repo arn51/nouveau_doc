@@ -667,8 +667,27 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    // Fonction PRO : attendre que Chart.js ait fini son rendu
+    function waitForCharts() {
+        return new Promise(resolve => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    setTimeout(resolve, 100);
+                });
+            });
+        });
+    }
+
     exportBtn.addEventListener("click", async () => {
-         console.log("✅ exportPDF cliqué");
+
+        console.log("exportPDF cliqué");
+
+        // Vérification jsPDF
+        if (!window.jspdf) {
+            console.error("jsPDF n'est pas chargé !");
+            return;
+        }
+
         const { jsPDF } = window.jspdf;
 
         const pdf = new jsPDF({
@@ -680,20 +699,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
 
-        // 1) Charger le logo externe
+        // 1) Charger le logo externe (CHEMIN ABSOLU CORRIGÉ)
         const logo = new Image();
-        logo.src = "/nouveau_doc/assets/logo.png"; // chemin vers ton fichier PNG
+        logo.src = "/nouveau_doc/assets/logo.png";
 
         await new Promise(resolve => logo.onload = resolve);
 
-        // 2) Capturer le contenu HTML
-        const content = document.getElementById("pdf-content");
-
+        // 2) Attendre que Chart.js soit rendu
         await waitForCharts();
+
+        // 3) Capturer le contenu HTML
+        const content = document.getElementById("pdf-content");
 
         const canvas = await html2canvas(content, {
             scale: 2,
-            useCORS: true
+            useCORS: true,
+            windowWidth: document.documentElement.clientWidth,
+            windowHeight: document.documentElement.clientHeight
         });
 
         const imgData = canvas.toDataURL("image/png");
@@ -701,28 +723,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const imgWidth = pageWidth - 40;
         const imgHeight = canvas.height * (imgWidth / canvas.width);
 
-        let position = 100; // espace sous le header
+        let position = 100;
         let heightLeft = imgHeight;
 
-        // 3) HEADER PRO
+        // 4) HEADER
         pdf.addImage(logo, "PNG", 20, 20, 60, 60);
         pdf.setFontSize(16);
         pdf.text("Rapport généré automatiquement", 100, 40);
         pdf.setFontSize(12);
         pdf.text(new Date().toLocaleDateString(), 100, 60);
 
-        // 4) PREMIÈRE PAGE
+        // 5) Première page
         pdf.addImage(imgData, "PNG", 20, position, imgWidth, imgHeight);
         heightLeft -= (pageHeight - position - 40);
 
-        let pageNumber = 1;
-
-        // 5) MULTI‑PAGES
+        // 6) Pages suivantes
         while (heightLeft > 0) {
             pdf.addPage();
-            pageNumber++;
 
-            // Header sur chaque page
             pdf.addImage(logo, "PNG", 20, 20, 60, 60);
             pdf.setFontSize(16);
             pdf.text("Rapport généré automatiquement", 100, 40);
@@ -733,7 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
             heightLeft -= (pageHeight - newPosition - 40);
         }
 
-        // 6) FOOTER + PAGINATION
+        // 7) Footer + pagination
         const totalPages = pdf.internal.getNumberOfPages();
 
         for (let i = 1; i <= totalPages; i++) {
@@ -747,7 +765,7 @@ document.addEventListener("DOMContentLoaded", () => {
             pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
         }
 
-        // 7) Sauvegarde
+        // 8) Sauvegarde
         pdf.save("export.pdf");
     });
 
