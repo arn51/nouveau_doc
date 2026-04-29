@@ -3,449 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <title>Dashboard des Badges</title>
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-
 <style>
-
-/* ========================= */
-/*   VARIABLES DE BASE       */
-/* ========================= */
-
-:root {
-  --bg: #f4f6f9;
-  --fg: #1e1e1e;
-  --card: #ffffff;
-  --border: #dcdcdc;
-  --accent: #3498db;
-  --accent-light: #5dade2;
-  --shadow: rgba(0,0,0,0.12);
-  --radius: 12px;
-  --transition: 0.25s ease;
-}
-
-/* Mode sombre auto */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1b1b1b;
-    --fg: #eaeaea;
-    --card: #262626;
-    --border: #444;
-    --shadow: rgba(0,0,0,0.45);
-  }
-}
-
-/* ========================= */
-/*   THEMES MANUELS          */
-/* ========================= */
-
-body.theme-light {
-  --bg: #f4f6f9;
-  --fg: #1e1e1e;
-  --card: #ffffff;
-  --border: #dcdcdc;
-}
-
-body.theme-dark {
-  --bg: #1b1b1b;
-  --fg: #eaeaea;
-  --card: #262626;
-  --border: #444;
-}
-
-body.theme-blue {
-  --accent: #3498db;
-  --accent-light: #5dade2;
-}
-
-body.theme-green {
-  --accent: #2ecc71;
-  --accent-light: #58d68d;
-}
-
-body.theme-purple {
-  --accent: #9b59b6;
-  --accent-light: #bb8fce;
-}
-
-body.theme-red {
-  --accent: #e74c3c;
-  --accent-light: #ec7063;
-}
-
-/* ========================= */
-/*   GLOBAL                  */
-/* ========================= */
-
-body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: "Inter", Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  transition: background var(--transition), color var(--transition);
-}
-
-h1 {
-  text-align: center;
-  margin-top: 35px;
-  margin-bottom: 25px;
-  font-size: 2.2rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-
-.card {
-  background: var(--card);
-  padding: 25px;
-  margin: 20px;
-  border-radius: var(--radius);
-  box-shadow: 0 4px 12px var(--shadow);
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px var(--shadow);
-}
-
-/* ========================= */
-/*   SIDEBAR                 */
-/* ========================= */
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 270px;
-  height: 100%;
-  background: var(--card);
-  box-shadow: 2px 0 10px var(--shadow);
-  padding: 25px;
-  transform: translateX(-100%);
-  transition: transform 0.35s ease;
-  z-index: 1000;
-
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  overflow-y: auto;
-}
-
-.sidebar.open {
-  transform: translateX(0);
-}
-
-.sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sidebar-section h3 {
-  margin-bottom: 10px;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.sidebar button,
-.sidebar select,
-.sidebar input {
-  width: 100%;
-  padding: 12px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background var(--transition), transform var(--transition);
-}
-
-.sidebar button:hover {
-  background: var(--accent-light);
-  transform: translateY(-2px);
-}
-
-.sidebar input {
-  background: var(--card);
-  color: var(--fg);
-  border: 1px solid var(--border);
-}
-
-.hamburger {
-  position: fixed;
-  top: 18px;
-  left: 18px;
-  font-size: 26px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  z-index: 1100;
-  transition: background var(--transition), transform var(--transition);
-}
-
-.hamburger:hover {
-  background: var(--accent-light);
-  transform: scale(1.05);
-}
-
-/* ========================= */
-/*   CARTES                  */
-/* ========================= */
-
-.cards-view {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 25px;
-  padding: 20px;
-}
-
-.card-item {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: 0 3px 10px var(--shadow);
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-
-.card-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px var(--shadow);
-}
-
-.card-item img {
-  width: 100%;
-  border-radius: var(--radius);
-}
-
-.card-item .score {
-  display: inline-block;
-  margin-top: 12px;
-  padding: 8px 14px;
-  border-radius: var(--radius);
-  color: white;
-  font-weight: 700;
-  font-size: 1rem;
-}
-
-/* ========================= */
-/*   PDF (Header + Footer    */
-/* ========================= */
-
-.pdf-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    border-bottom: 1px solid #ccc;
-    font-size: 14px;
-}
-
-.pdf-header img {
-    height: 50px;
-}
-
-.pdf-footer {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    text-align: center;
-    font-size: 12px;
-    color: #666;
-}
-  
-/* ========================= */
-/*   TABLEAU                 */
-/* ========================= */
-
-.table-view {
-  width: 95%;
-  margin: 25px auto;
-  border-collapse: collapse;
-  background: var(--card);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: 0 4px 12px var(--shadow);
-}
-
-.table-view.hidden {
-  display: none;
-}
-
-.table-view th,
-.table-view td {
-  padding: 14px;
-  border-bottom: 1px solid var(--border);
-  text-align: center;
-  font-size: 1rem;
-}
-
-.table-view th {
-  background: var(--accent);
-  color: white;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.table-view tr:hover {
-  background: var(--accent-light);
-  color: white;
-}
-
-/* ========================= */
-/*   GRAPHIQUES              */
-/* ========================= */
-
-.charts {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 35px;
-  padding: 20px;
-}
-
-/* Fix Brave/Firefox + lisibilité */
-canvas {
-  width: 100% !important;
-  height: 340px !important;
-  min-height: 340px !important;
-  display: block !important;
-  box-sizing: border-box !important;
-
-  image-rendering: optimizeQuality;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-}
-
-.chartjs-render-monitor {
-  font-weight: 600 !important;
-}
-
-/* ========================= */
-/*   RESPONSIVE              */
-/* ========================= */
-
-@media (min-width: 900px) {
-  .charts {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
+  body { font-family: Arial; margin: 40px; background: #f5f5f5; }
+  h1 { text-align: center; margin-bottom: 10px; }
+  #summary { background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  #summary h2 { margin-top: 0; }
+  #summary .item { margin: 6px 0; font-size: 16px; }
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
+  th { background: #333; color: white; cursor: pointer; }
+  tr:hover { background: #f0f0f0; }
+  .badge-img { max-width: 180px; }
+  .score { font-weight: bold; padding: 6px 12px; border-radius: 6px; color: white; }
 </style>
 </head>
 <body>
 
-<!-- ========================= -->
-<!--   SIDEBAR                 -->
-<!-- ========================= -->
+<h1>Dashboard des Badges</h1>
 
-<button id="openSidebar" class="hamburger">☰</button>
-
-<div id="sidebar" class="sidebar">
-  <div class="sidebar-header">
-    <h2>Menu</h2>
-    <button id="closeSidebar">✖</button>
-  </div>
-
-  <div class="sidebar-section">
-    <h3>Affichage</h3>
-    <button id="toggleView">Basculer cartes / tableau</button>
-    <button id="toggleCompact">Mode compact / détaillé</button>
-  </div>
-
-  <div class="sidebar-section">
-    <h3>Thème</h3>
-    <button class="theme-btn" data-theme="auto">Auto</button>
-    <button class="theme-btn" data-theme="light">Clair</button>
-    <button class="theme-btn" data-theme="dark">Sombre</button>
-    <button class="theme-btn" data-theme="blue">Bleu</button>
-    <button class="theme-btn" data-theme="green">Vert</button>
-    <button class="theme-btn" data-theme="purple">Violet</button>
-    <button class="theme-btn" data-theme="red">Rouge</button>
-  </div>
-
-  <div class="sidebar-section">
-    <h3>Export</h3>
-    <button id="exportCSV">Exporter CSV</button>
-    <button id="exportJSON">Exporter JSON</button>
-    <button id="exportMD">Exporter Markdown</button>
-    <button id="exportPDF">Exporter PDF</button>
-  </div>
-
-  <div class="sidebar-section">
-    <h3>Filtres</h3>
-    <select id="filterType">
-      <option value="all">Tous</option>
-    </select>
-
-    <input id="searchInput" type="text" placeholder="Recherche...">
-  </div>
+<div id="summary">
+  <h2>Résumé global</h2>
+  <div class="item" id="total"></div>
+  <div class="item" id="completed"></div>
+  <div class="item" id="incomplete"></div>
+  <div class="item" id="average"></div>
+  <div class="item" id="updated"></div>
 </div>
 
-<!-- ========================= -->
-<!--   CONTENU PRINCIPAL       -->
-<!-- ========================= -->
+<table id="badgeTable">
+  <thead>
+    <tr>
+      <th onclick="sortTable(0)">Badge</th>
+      <th>Image</th>
+      <th onclick="sortTable(2)">Score</th>
+    </tr>
+  </thead>
+  <tbody id="badgeBody"></tbody>
+</table>
 
-<div id="main">
-
-  <h1>Dashboard des Badges</h1>
-
-  <!-- Résumé global -->
-  <div id="summary" class="card">
-    <h2>Résumé global</h2>
-    <div id="total"></div>
-    <div id="completed"></div>
-    <div id="incomplete"></div>
-    <div id="average"></div>
-    <div id="updated"></div>
-  </div>
-
-  <!-- Graphiques -->
-  <div class="charts">
-    <canvas id="chartBars"></canvas>
-    <canvas id="chartRadar"></canvas>
-    <canvas id="chartDonut"></canvas>
-  </div>
-
-  <!-- Mode cartes -->
-  <div id="cardsContainer" class="cards-view"></div>
-
-  <!-- Mode tableau -->
-  <table id="badgeTable" class="table-view hidden">
-    <thead>
-      <tr>
-        <th data-col="type">Badge</th>
-        <th>Image</th>
-        <th data-col="score">Score</th>
-      </tr>
-    </thead>
-    <tbody id="badgeBody"></tbody>
-  </table>
-
-</div>
 <script>
-
-// =======================================
-// VARIABLES GLOBALES
-// =======================================
-
-let badgeData = [];
-let currentView = "cards"; 
-let compactMode = false;
-
-let chartBars = null;
-let chartRadar = null;
-let chartDonut = null;
-
-// =======================================
-// CHARGEMENT DES BADGES VIA API GITHUB
-// =======================================
+function colorForScore(score) {
+  if (score >= 90) return "#2ecc71";
+  if (score >= 70) return "#f1c40f";
+  return "#e74c3c";
+}
 
 async function loadBadges() {
   const repo = "arn51/nouveau_doc";
@@ -456,42 +57,37 @@ async function loadBadges() {
   const files = await response.json();
 
   const jsonFiles = files.filter(f => f.name.endsWith(".json") && f.name.startsWith("tests_"));
+  const svgFiles  = files.filter(f => f.name.endsWith(".svg")  && f.name.startsWith("tests_"));
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(files, "text/html");
+
+  const links = [...doc.querySelectorAll("a")].map(a => a.getAttribute("href"));
+  const jsonFiles = links.filter(f => f.endsWith(".json") && f.startsWith("tests_"));
+  const svgFiles = links.filter(f => f.endsWith(".svg") && f.startsWith("tests_"));
 
   let scores = [];
-  let types = new Set();
 
-  for (const file of jsonFiles) {
-    const data = await (await fetch(file.download_url)).json();
-
-    if (!data.type) continue;
-
-    const base = file.name.replace(".json", "");
+  for (const json of jsonFiles) {
+    const base = json.replace(".json", "");
     const svg = base + ".svg";
 
+    const data = await (await fetch(json)).json();
     const score = data.score ?? Math.round((data.success / data.tests) * 100);
 
     scores.push(score);
-    types.add(data.type);
 
-    badgeData.push({
-      type: data.type,
-      score,
-      svg
-    });
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${base}</td>
+      <td><img class="badge-img" src="${svg}"></td>
+      <td><span class="score" style="background:${colorForScore(score)}">${score}%</span></td>
+    `;
+    document.getElementById("badgeBody").appendChild(row);
   }
 
-  scores = scores.filter(s => !isNaN(s));
-
   updateSummary(scores);
-  populateFilters(types);
-  renderCards();
-  renderTable();
-  drawCharts(scores);
 }
-
-// =======================================
-// RÉSUMÉ GLOBAL
-// =======================================
 
 function updateSummary(scores) {
   const total = scores.length;
@@ -506,376 +102,51 @@ function updateSummary(scores) {
   document.getElementById("updated").innerText = `Dernière mise à jour : ${new Date().toLocaleString("fr-FR")}`;
 }
 
-// =======================================
-// FILTRES
-// =======================================
+function sortTable(n) {
+  const table = document.getElementById("badgeTable");
+  let switching = true;
+  let dir = "asc";
+  let switchcount = 0;
 
-function populateFilters(types) {
-  const select = document.getElementById("filterType");
-  types.forEach(t => {
-    const opt = document.createElement("option");
-    opt.value = t;
-    opt.textContent = t;
-    select.appendChild(opt);
-  });
+  while (switching) {
+    switching = false;
+    const rows = table.rows;
 
-  select.addEventListener("change", applyFilters);
-  document.getElementById("searchInput").addEventListener("input", applyFilters);
-}
+    for (let i = 1; i < rows.length - 1; i++) {
+      let shouldSwitch = false;
 
-function applyFilters() {
-  const typeFilter = document.getElementById("filterType").value;
-  const search = document.getElementById("searchInput").value.toLowerCase();
+      const x = rows[i].getElementsByTagName("td")[n];
+      const y = rows[i + 1].getElementsByTagName("td")[n];
 
-  const filtered = badgeData.filter(b =>
-    (typeFilter === "all" || b.type === typeFilter) &&
-    (b.type.toLowerCase().includes(search) || String(b.score).includes(search))
-  );
+      let cmpX = x.innerText.toLowerCase();
+      let cmpY = y.innerText.toLowerCase();
 
-  renderCards(filtered);
-  renderTable(filtered);
-}
+      if (!isNaN(parseFloat(cmpX))) {
+        cmpX = parseFloat(cmpX);
+        cmpY = parseFloat(cmpY);
+      }
 
-// =======================================
-// MODE CARTES
-// =======================================
-
-function renderCards(data = badgeData) {
-  const container = document.getElementById("cardsContainer");
-  container.innerHTML = "";
-
-  data.forEach(b => {
-    const card = document.createElement("div");
-    card.className = "card-item";
-
-    card.innerHTML = `
-      <h3>${b.type}</h3>
-      <img src="${b.svg}">
-      <div class="score" style="background:${colorForScore(b.score)}">${b.score}%</div>
-    `;
-
-    container.appendChild(card);
-  });
-
-  if (compactMode) container.classList.add("compact");
-  else container.classList.remove("compact");
-}
-
-// =======================================
-// MODE TABLEAU
-// =======================================
-
-function renderTable(data = badgeData) {
-  const body = document.getElementById("badgeBody");
-  body.innerHTML = "";
-
-  data.forEach(b => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${b.type}</td>
-      <td><img src="${b.svg}" style="max-width:120px"></td>
-      <td>${b.score}%</td>
-    `;
-    body.appendChild(row);
-  });
-}
-
-// =======================================
-// BASCULE CARTES / TABLEAU
-// =======================================
-
-document.getElementById("toggleView").addEventListener("click", () => {
-  currentView = currentView === "cards" ? "table" : "cards";
-
-  document.getElementById("cardsContainer").classList.toggle("hidden");
-  document.getElementById("badgeTable").classList.toggle("hidden");
-});
-
-// =======================================
-// MODE COMPACT
-// =======================================
-
-document.getElementById("toggleCompact").addEventListener("click", () => {
-  compactMode = !compactMode;
-  renderCards();
-});
-
-// =======================================
-// SIDEBAR
-// =======================================
-
-document.getElementById("openSidebar").addEventListener("click", () => {
-  document.getElementById("sidebar").classList.add("open");
-});
-
-document.getElementById("closeSidebar").addEventListener("click", () => {
-  document.getElementById("sidebar").classList.remove("open");
-});
-
-// =======================================
-// THEMES
-// =======================================
-
-document.querySelectorAll(".theme-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const theme = btn.dataset.theme;
-
-    document.body.className = "";
-    if (theme !== "auto") {
-      document.body.classList.add(`theme-${theme}`);
-    }
-
-    localStorage.setItem("theme", theme);
-  });
-});
-
-// Charger thème sauvegardé
-const savedTheme = localStorage.getItem("theme");
-if (savedTheme && savedTheme !== "auto") {
-  document.body.classList.add(`theme-${savedTheme}`);
-}
-
-// =======================================
-// EXPORTS
-// =======================================
-
-document.getElementById("exportCSV").addEventListener("click", () => {
-  let csv = "type,score\n";
-  badgeData.forEach(b => csv += `${b.type},${b.score}\n`);
-  download("badges.csv", csv);
-});
-
-document.getElementById("exportJSON").addEventListener("click", () => {
-  download("badges.json", JSON.stringify(badgeData, null, 2));
-});
-
-document.getElementById("exportMD").addEventListener("click", () => {
-  let md = "# Résultats des badges\n\n| Type | Score |\n|------|-------|\n";
-  badgeData.forEach(b => md += `| ${b.type} | ${b.score}% |\n`);
-  download("badges.md", md);
-});
-
-// =======================================
-// EXPORT PDF PRO FINAL (avec logo auto-redimensionné)
-// =======================================
-
-document.getElementById("exportPDF").addEventListener("click", async () => {
-
-    const { jsPDF } = window.jspdf;
-
-    const pdf = new jsPDF({
-        unit: "px",
-        format: "a4",
-        hotfixes: ["px_scaling"]
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    // 1) Charger le logo externe
-    const logo = new Image();
-    logo.src = "assets/logo.png"; // chemin vers ton fichier PNG
-
-    await new Promise(resolve => logo.onload = resolve);
-
-    // 2) Capturer le contenu HTML
-    const content = document.getElementById("pdf-content");
-
-    const canvas = await html2canvas(content, {
-        scale: 2,
-        useCORS: true
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-
-    const imgWidth = pageWidth - 40;
-    const imgHeight = canvas.height * (imgWidth / canvas.width);
-
-    let position = 100; // espace sous le header
-    let heightLeft = imgHeight;
-
-    // 3) HEADER PRO
-    pdf.addImage(logo, "PNG", 20, 20, 60, 60);
-    pdf.setFontSize(16);
-    pdf.text("Rapport généré automatiquement", 100, 40);
-    pdf.setFontSize(12);
-    pdf.text(new Date().toLocaleDateString(), 100, 60);
-
-    // 4) PREMIÈRE PAGE
-    pdf.addImage(imgData, "PNG", 20, position, imgWidth, imgHeight);
-    heightLeft -= (pageHeight - position - 40);
-
-    let pageNumber = 1;
-
-    // 5) MULTI‑PAGES
-    while (heightLeft > 0) {
-        pdf.addPage();
-        pageNumber++;
-
-        // Header sur chaque page
-        pdf.addImage(logo, "PNG", 20, 20, 60, 60);
-        pdf.setFontSize(16);
-        pdf.text("Rapport généré automatiquement", 100, 40);
-
-        const newPosition = 100;
-        pdf.addImage(imgData, "PNG", 20, newPosition - (imgHeight - heightLeft), imgWidth, imgHeight);
-
-        heightLeft -= (pageHeight - newPosition - 40);
-    }
-
-    // 6) FOOTER + PAGINATION
-    const totalPages = pdf.internal.getNumberOfPages();
-
-    for (let i = 1; i <= totalPages; i++) {
-        pdf.setPage(i);
-
-        pdf.setFontSize(11);
-        pdf.setTextColor(120);
-        pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
-
-        pdf.setFontSize(10);
-        pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
-    }
-
-    // 7) Sauvegarde
-    pdf.save("export.pdf");
-});
-
-// =======================================
-// GRAPHIQUES
-// =======================================
-
-function drawCharts(scores) {
-
-  if (chartBars) chartBars.destroy();
-  if (chartRadar) chartRadar.destroy();
-  if (chartDonut) chartDonut.destroy();
-
-  chartBars = new Chart(document.getElementById("chartBars"), {
-    type: "bar",
-    data: {
-      labels: badgeData.map(b => b.type),
-      datasets: [{
-        label: "Score (%)",
-        data: badgeData.map(b => b.score),
-        backgroundColor: badgeData.map(b => colorForScore(b.score))
-      }]
-    },
-    options: {
-      plugins: {
-        legend: {
-          labels: {
-            color: "#000",
-            font: { size: 14, weight: "bold" }
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: "#000", font: { size: 14, weight: "bold" } }
-        },
-        y: {
-          ticks: { color: "#000", font: { size: 14, weight: "bold" } }
-        }
-      },
-      animation: { duration: 800 }
-    }
-  });
-
-  chartRadar = new Chart(document.getElementById("chartRadar"), {
-    type: "radar",
-    data: {
-      labels: badgeData.map(b => b.type),
-      datasets: [{
-        label: "Score par type",
-        data: badgeData.map(b => b.score),
-        backgroundColor: "rgba(46, 204, 113, 0.3)",
-        borderColor: "#2ecc71",
-        borderWidth: 2
-      }]
-    },
-    options: {
-      plugins: {
-        legend: {
-          labels: {
-            color: "#000",
-            font: { size: 14, weight: "bold" }
-          }
-        }
-      },
-      scales: {
-        r: {
-          ticks: {
-            color: "#000",
-            font: { size: 14, weight: "bold" }
-          },
-          pointLabels: {
-            color: "#000",
-            font: { size: 14, weight: "bold" }
-          },
-          beginAtZero: true,
-          max: 100
-        }
+      if ((dir === "asc" && cmpX > cmpY) || (dir === "desc" && cmpX < cmpY)) {
+        shouldSwitch = true;
+        break;
       }
     }
-  });
 
-  chartDonut = new Chart(document.getElementById("chartDonut"), {
-    type: "doughnut",
-    data: {
-      labels: badgeData.map(b => b.type),
-      datasets: [{
-        data: badgeData.map(b => b.score),
-        backgroundColor: badgeData.map(b => colorForScore(b.score))
-      }]
-    },
-    options: {
-      plugins: {
-        legend: {
-          labels: {
-            color: "#000",
-            font: { size: 14, weight: "bold" }
-          }
-        }
-      },
-      animation: { duration: 800 }
+    if (shouldSwitch) {
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      switchcount++;
+    } else {
+      if (switchcount === 0 && dir === "asc") {
+        dir = "desc";
+        switching = true;
+      }
     }
-  });
-}
-
-// =======================================
-// UTILITAIRES
-// =======================================
-
-function download(filename, text) {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-  a.download = filename;
-  a.click();
-}
-
-function colorForScore(score) {
-  if (score >= 90) return "#2ecc71";
-  if (score >= 70) return "#f1c40f";
-  return "#e74c3c";
-}
-
-// =======================================
-// FIX BRAVE / FIREFOX : REDRAW SUR RESIZE
-// =======================================
-
-window.addEventListener("resize", () => {
-  if (badgeData.length > 0) {
-    drawCharts(badgeData.map(b => b.score));
   }
-});
-
-// =======================================
-// LANCEMENT
-// =======================================
+}
 
 loadBadges();
-
 </script>
+
 </body>
 </html>
