@@ -634,80 +634,84 @@ document.getElementById("exportMD").addEventListener("click", () => {
 // =======================================
 
 document.getElementById("exportPDF").addEventListener("click", async () => {
-  const jsPDF = window.jspdf.jsPDF;
 
-  // Logo Base64
-  
-    // Charger le logo AVANT la création du PDF
-    const logoImg = new Image();
-    logoImg.src = logoBase64;
+    const { jsPDF } = window.jspdf;
 
-    await new Promise((resolve) => {
-        logoImg.onload = resolve;
+    const pdf = new jsPDF({
+        unit: "px",
+        format: "a4",
+        hotfixes: ["px_scaling"]
     });
 
-    const canvas = await html2canvas(mainElement, {
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // 1) Charger le logo externe
+    const logo = new Image();
+    logo.src = "assets/logo.png"; // chemin vers ton fichier PNG
+
+    await new Promise(resolve => logo.onload = resolve);
+
+    // 2) Capturer le contenu HTML
+    const content = document.getElementById("pdf-content");
+
+    const canvas = await html2canvas(content, {
         scale: 2,
         useCORS: true
     });
 
     const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jspdf.jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth - 40;
+    const imgHeight = canvas.height * (imgWidth / canvas.width);
 
-    // Fonction HEADER PRO
-    const addHeader = () => {
-        const logoWidth = 25;   // auto‑resize propre
-        const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
-
-        pdf.addImage(logoBase64, "PNG", pageWidth - logoWidth - 10, 8, logoWidth, logoHeight);
-
-        pdf.setFontSize(16);
-        pdf.text("Rapport PDF", 10, 15);
-
-        pdf.setFontSize(10);
-        pdf.text(new Date().toLocaleDateString(), 10, 22);
-
-        pdf.setLineWidth(0.3);
-        pdf.line(10, 28, pageWidth - 10, 28);
-    };
-
-    // Fonction FOOTER PRO
-    const addFooter = (pageNumber) => {
-        pdf.setFontSize(10);
-        pdf.text(`Page ${pageNumber}`, pageWidth / 2, pageHeight - 10, { align: "center" });
-
-        pdf.setLineWidth(0.3);
-        pdf.line(10, pageHeight - 15, pageWidth - 10, pageHeight - 15);
-    };
-
-    // Découpage multi‑pages
-    const imgHeight = (canvas.height * 210) / canvas.width;
+    let position = 100; // espace sous le header
     let heightLeft = imgHeight;
-    let position = 35;
+
+    // 3) HEADER PRO
+    pdf.addImage(logo, "PNG", 20, 20, 60, 60);
+    pdf.setFontSize(16);
+    pdf.text("Rapport généré automatiquement", 100, 40);
+    pdf.setFontSize(12);
+    pdf.text(new Date().toLocaleDateString(), 100, 60);
+
+    // 4) PREMIÈRE PAGE
+    pdf.addImage(imgData, "PNG", 20, position, imgWidth, imgHeight);
+    heightLeft -= (pageHeight - position - 40);
+
     let pageNumber = 1;
 
-    addHeader();
-    addFooter(pageNumber);
-
-    pdf.addImage(imgData, "PNG", 0, position, 210, imgHeight);
-    heightLeft -= pageHeight - 40;
-
+    // 5) MULTI‑PAGES
     while (heightLeft > 0) {
         pdf.addPage();
         pageNumber++;
 
-        addHeader();
-        addFooter(pageNumber);
+        // Header sur chaque page
+        pdf.addImage(logo, "PNG", 20, 20, 60, 60);
+        pdf.setFontSize(16);
+        pdf.text("Rapport généré automatiquement", 100, 40);
 
-        position = 35;
-        pdf.addImage(imgData, "PNG", 0, position - (imgHeight - heightLeft), 210, imgHeight);
+        const newPosition = 100;
+        pdf.addImage(imgData, "PNG", 20, newPosition - (imgHeight - heightLeft), imgWidth, imgHeight);
 
-        heightLeft -= pageHeight - 40;
+        heightLeft -= (pageHeight - newPosition - 40);
     }
 
+    // 6) FOOTER + PAGINATION
+    const totalPages = pdf.internal.getNumberOfPages();
+
+    for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+
+        pdf.setFontSize(11);
+        pdf.setTextColor(120);
+        pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
+
+        pdf.setFontSize(10);
+        pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
+    }
+
+    // 7) Sauvegarde
     pdf.save("export.pdf");
 });
 
