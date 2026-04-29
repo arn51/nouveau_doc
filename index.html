@@ -638,86 +638,97 @@ document.getElementById("exportMD").addEventListener("click", () => {
   download("badges.md", md);
 });
 
-document.getElementById("exportPDF").addEventListener("click", async () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-    const { jsPDF } = window.jspdf;
+    const exportBtn = document.getElementById("exportPDF");
 
-    const pdf = new jsPDF({
-        unit: "px",
-        format: "a4",
-        hotfixes: ["px_scaling"]
-    });
+    if (!exportBtn) {
+        console.error("Le bouton exportPDF est introuvable !");
+        return;
+    }
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+    exportBtn.addEventListener("click", async () => {
 
-    // 1) Charger le logo externe
-    const logo = new Image();
-    logo.src = "assets/logo.png"; // chemin vers ton fichier PNG
+        const { jsPDF } = window.jspdf;
 
-    await new Promise(resolve => logo.onload = resolve);
+        const pdf = new jsPDF({
+            unit: "px",
+            format: "a4",
+            hotfixes: ["px_scaling"]
+        });
 
-    // 2) Capturer le contenu HTML
-    const content = document.getElementById("pdf-content");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const canvas = await html2canvas(content, {
-        scale: 2,
-        useCORS: true
-    });
+        // 1) Charger le logo externe
+        const logo = new Image();
+        logo.src = "assets/logo.png"; // chemin vers ton fichier PNG
 
-    const imgData = canvas.toDataURL("image/png");
+        await new Promise(resolve => logo.onload = resolve);
 
-    const imgWidth = pageWidth - 40;
-    const imgHeight = canvas.height * (imgWidth / canvas.width);
+        // 2) Capturer le contenu HTML
+        const content = document.getElementById("pdf-content");
 
-    let position = 100; // espace sous le header
-    let heightLeft = imgHeight;
+        const canvas = await html2canvas(content, {
+            scale: 2,
+            useCORS: true
+        });
 
-    // 3) HEADER PRO
-    pdf.addImage(logo, "PNG", 20, 20, 60, 60);
-    pdf.setFontSize(16);
-    pdf.text("Rapport généré automatiquement", 100, 40);
-    pdf.setFontSize(12);
-    pdf.text(new Date().toLocaleDateString(), 100, 60);
+        const imgData = canvas.toDataURL("image/png");
 
-    // 4) PREMIÈRE PAGE
-    pdf.addImage(imgData, "PNG", 20, position, imgWidth, imgHeight);
-    heightLeft -= (pageHeight - position - 40);
+        const imgWidth = pageWidth - 40;
+        const imgHeight = canvas.height * (imgWidth / canvas.width);
 
-    let pageNumber = 1;
+        let position = 100; // espace sous le header
+        let heightLeft = imgHeight;
 
-    // 5) MULTI‑PAGES
-    while (heightLeft > 0) {
-        pdf.addPage();
-        pageNumber++;
-
-        // Header sur chaque page
+        // 3) HEADER PRO
         pdf.addImage(logo, "PNG", 20, 20, 60, 60);
         pdf.setFontSize(16);
         pdf.text("Rapport généré automatiquement", 100, 40);
+        pdf.setFontSize(12);
+        pdf.text(new Date().toLocaleDateString(), 100, 60);
 
-        const newPosition = 100;
-        pdf.addImage(imgData, "PNG", 20, newPosition - (imgHeight - heightLeft), imgWidth, imgHeight);
+        // 4) PREMIÈRE PAGE
+        pdf.addImage(imgData, "PNG", 20, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - position - 40);
 
-        heightLeft -= (pageHeight - newPosition - 40);
-    }
+        let pageNumber = 1;
 
-    // 6) FOOTER + PAGINATION
-    const totalPages = pdf.internal.getNumberOfPages();
+        // 5) MULTI‑PAGES
+        while (heightLeft > 0) {
+            pdf.addPage();
+            pageNumber++;
 
-    for (let i = 1; i <= totalPages; i++) {
-        pdf.setPage(i);
+            // Header sur chaque page
+            pdf.addImage(logo, "PNG", 20, 20, 60, 60);
+            pdf.setFontSize(16);
+            pdf.text("Rapport généré automatiquement", 100, 40);
 
-        pdf.setFontSize(11);
-        pdf.setTextColor(120);
-        pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
+            const newPosition = 100;
+            pdf.addImage(imgData, "PNG", 20, newPosition - (imgHeight - heightLeft), imgWidth, imgHeight);
 
-        pdf.setFontSize(10);
-        pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
-    }
+            heightLeft -= (pageHeight - newPosition - 40);
+        }
 
-    // 7) Sauvegarde
-    pdf.save("export.pdf");
+        // 6) FOOTER + PAGINATION
+        const totalPages = pdf.internal.getNumberOfPages();
+
+        for (let i = 1; i <= totalPages; i++) {
+            pdf.setPage(i);
+
+            pdf.setFontSize(11);
+            pdf.setTextColor(120);
+            pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
+
+            pdf.setFontSize(10);
+            pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
+        }
+
+        // 7) Sauvegarde
+        pdf.save("export.pdf");
+    });
+
 });
 
 // =======================================
