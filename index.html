@@ -765,6 +765,31 @@ document.addEventListener("DOMContentLoaded", () => {
         for (let i = 1; i <= totalPages; i++) {
             pdf.setPage(i);
 
+        // === FILIGRANE IMAGE + TEXTE ===
+
+        // Opacité réduite pour le filigrane
+           pdf.setGState(new pdf.GState({ opacity: 0.12 }));
+
+        // --- Filigrane image ---
+            const wmWidth = pageWidth * 0.35;
+            const wmHeight = wmWidth;
+            const wmX = (pageWidth - wmWidth) / 2;
+            const wmY = (pageHeight - wmHeight) / 2;
+
+            pdf.addImage(logo, "PNG", wmX, wmY, wmWidth, wmHeight, "", "FAST");
+
+        // --- Filigrane texte ---
+            pdf.setFontSize(48);
+            pdf.setTextColor(150);
+            pdf.text("LJ DASHBOARD", pageWidth / 2, pageHeight / 2 + wmHeight * 0.6, {
+                angle: 45,
+                align: "center"
+        });
+
+        // Retour à l’opacité normale
+            pdf.setGState(new pdf.GState({ opacity: 1 }));
+
+        // === FOOTER ===
             pdf.setFontSize(11);
             pdf.setTextColor(120);
             pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
