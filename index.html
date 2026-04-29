@@ -221,6 +221,32 @@ h1 {
 }
 
 /* ========================= */
+/*   Hedader + Footer (PDF)  */
+/* ========================= */
+
+.pdf-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.pdf-header img {
+    height: 50px;
+}
+
+.pdf-footer {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+}
+
+/* ========================= */
 /*   TABLEAU                 */
 /* ========================= */
 
@@ -613,43 +639,85 @@ document.getElementById("exportMD").addEventListener("click", () => {
 });
 
 document.getElementById("exportPDF").addEventListener("click", async () => {
-  const { jsPDF } = window.jspdf;
 
-  const element = document.getElementById("main");
+    const { jsPDF } = window.jspdf;
 
-  // Capture haute résolution
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true
-  });
+    const pdf = new jsPDF({
+        unit: "px",
+        format: "a4",
+        hotfixes: ["px_scaling"]
+    });
 
-  const imgData = canvas.toDataURL("image/png");
-  const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+    // 1) Charger le logo externe
+    const logo = new Image();
+    logo.src = "assets/logo.png"; // chemin vers ton fichier PNG
 
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    await new Promise(resolve => logo.onload = resolve);
 
-  let position = 0;
+    // 2) Capturer le contenu HTML
+    const content = document.getElementById("pdf-content");
 
-  // Si le contenu dépasse une page, on ajoute des pages
-  if (imgHeight < pageHeight) {
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-  } else {
+    const canvas = await html2canvas(content, {
+        scale: 2,
+        useCORS: true
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const imgWidth = pageWidth - 40;
+    const imgHeight = canvas.height * (imgWidth / canvas.width);
+
+    let position = 100; // espace sous le header
     let heightLeft = imgHeight;
 
+    // 3) HEADER PRO
+    pdf.addImage(logo, "PNG", 20, 20, 60, 60);
+    pdf.setFontSize(16);
+    pdf.text("Rapport généré automatiquement", 100, 40);
+    pdf.setFontSize(12);
+    pdf.text(new Date().toLocaleDateString(), 100, 60);
+
+    // 4) PREMIÈRE PAGE
+    pdf.addImage(imgData, "PNG", 20, position, imgWidth, imgHeight);
+    heightLeft -= (pageHeight - position - 40);
+
+    let pageNumber = 1;
+
+    // 5) MULTI‑PAGES
     while (heightLeft > 0) {
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      position -= pageHeight;
+        pdf.addPage();
+        pageNumber++;
 
-      if (heightLeft > 0) pdf.addPage();
+        // Header sur chaque page
+        pdf.addImage(logo, "PNG", 20, 20, 60, 60);
+        pdf.setFontSize(16);
+        pdf.text("Rapport généré automatiquement", 100, 40);
+
+        const newPosition = 100;
+        pdf.addImage(imgData, "PNG", 20, newPosition - (imgHeight - heightLeft), imgWidth, imgHeight);
+
+        heightLeft -= (pageHeight - newPosition - 40);
     }
-  }
 
-  pdf.save("dashboard_badges.pdf");
+    // 6) FOOTER + PAGINATION
+    const totalPages = pdf.internal.getNumberOfPages();
+
+    for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+
+        pdf.setFontSize(11);
+        pdf.setTextColor(120);
+        pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
+
+        pdf.setFontSize(10);
+        pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
+    }
+
+    // 7) Sauvegarde
+    pdf.save("export.pdf");
 });
 
 // =======================================
