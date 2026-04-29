@@ -3,50 +3,406 @@
 <head>
 <meta charset="UTF-8">
 <title>Dashboard des Badges</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-  body { font-family: Arial; margin: 40px; background: #f5f5f5; }
-  h1 { text-align: center; margin-bottom: 10px; }
-  #summary { background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-  #summary h2 { margin-top: 0; }
-  #summary .item { margin: 6px 0; font-size: 16px; }
-  table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
-  th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
-  th { background: #333; color: white; cursor: pointer; }
-  tr:hover { background: #f0f0f0; }
-  .badge-img { max-width: 180px; }
-  .score { font-weight: bold; padding: 6px 12px; border-radius: 6px; color: white; }
+
+/* ========================= */
+/*   VARIABLES DE BASE       */
+/* ========================= */
+
+:root {
+  --bg: #f5f5f5;
+  --fg: #222;
+  --card: #ffffff;
+  --border: #ddd;
+  --accent: #3498db;
+  --accent-light: #5dade2;
+  --shadow: rgba(0,0,0,0.15);
+}
+
+/* Mode sombre auto */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #eee;
+    --card: #2b2b2b;
+    --border: #444;
+    --shadow: rgba(0,0,0,0.4);
+  }
+}
+
+/* ========================= */
+/*   THEMES MANUELS          */
+/* ========================= */
+
+body.theme-light {
+  --bg: #f5f5f5;
+  --fg: #222;
+  --card: #ffffff;
+  --border: #ddd;
+  --accent: #3498db;
+}
+
+body.theme-dark {
+  --bg: #1e1e1e;
+  --fg: #eee;
+  --card: #2b2b2b;
+  --border: #444;
+  --accent: #9b59b6;
+}
+
+body.theme-blue {
+  --accent: #3498db;
+  --accent-light: #5dade2;
+}
+
+body.theme-green {
+  --accent: #2ecc71;
+  --accent-light: #58d68d;
+}
+
+body.theme-purple {
+  --accent: #9b59b6;
+  --accent-light: #bb8fce;
+}
+
+body.theme-red {
+  --accent: #e74c3c;
+  --accent-light: #ec7063;
+}
+
+/* ========================= */
+/*   GLOBAL                  */
+/* ========================= */
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: background 0.3s, color 0.3s;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: var(--card);
+  padding: 20px;
+  margin: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+/* ========================= */
+/*   SIDEBAR (corrigée)      */
+/* ========================= */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100%;
+  background: var(--card);
+  box-shadow: 2px 0 6px var(--shadow);
+  padding: 20px;
+  transform: translateX(-100%);
+  transition: transform 0.3s;
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar button,
+.sidebar select,
+.sidebar input {
+  width: 100%;
+  padding: 10px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sidebar input {
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+
+.hamburger {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  font-size: 26px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+/* ========================= */
+/*   CARTES                  */
+/* ========================= */
+
+.cards-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.card-item {
+  background: var(--card);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 6px var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.card-item img {
+  width: 100%;
+  border-radius: 6px;
+}
+
+.card-item .score {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+}
+
+/* Mode compact */
+.compact .card-item img {
+  display: none;
+}
+
+.compact .card-item {
+  padding: 10px;
+}
+
+/* ========================= */
+/*   TABLEAU                 */
+/* ========================= */
+
+.table-view {
+  width: 95%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background: var(--card);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+.table-view.hidden {
+  display: none;
+}
+
+.table-view th,
+.table-view td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.table-view th {
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+
+.table-view tr:hover {
+  background: var(--accent-light);
+  color: white;
+}
+
+/* ========================= */
+/*   GRAPHIQUES              */
+/* ========================= */
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+  padding: 20px;
+}
+
+canvas {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+/* ========================= */
+/*   RESPONSIVE              */
+/* ========================= */
+
+@media (min-width: 900px) {
+  .charts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 </style>
 </head>
 <body>
+<!-- ========================= -->
+<!--   SIDEBAR (rétractée)     -->
+<!-- ========================= -->
+<div id="sidebar" class="sidebar collapsed">
+  <div class="sidebar-header">
+    <h2>Menu</h2>
+    <button id="closeSidebar">✖</button>
+  </div>
 
-<h1>Dashboard des Badges</h1>
+  <div class="sidebar-section">
+    <h3>Affichage</h3>
+    <button id="toggleView">Basculer cartes / tableau</button>
+    <button id="toggleCompact">Mode compact / détaillé</button>
+  </div>
 
-<div id="summary">
-  <h2>Résumé global</h2>
-  <div class="item" id="total"></div>
-  <div class="item" id="completed"></div>
-  <div class="item" id="incomplete"></div>
-  <div class="item" id="average"></div>
-  <div class="item" id="updated"></div>
+  <div class="sidebar-section">
+    <h3>Thème</h3>
+    <button class="theme-btn" data-theme="auto">Auto</button>
+    <button class="theme-btn" data-theme="light">Clair</button>
+    <button class="theme-btn" data-theme="dark">Sombre</button>
+    <button class="theme-btn" data-theme="blue">Bleu</button>
+    <button class="theme-btn" data-theme="green">Vert</button>
+    <button class="theme-btn" data-theme="purple">Violet</button>
+    <button class="theme-btn" data-theme="red">Rouge</button>
+  </div>
+
+  <div class="sidebar-section">
+    <h3>Export</h3>
+    <button id="exportCSV">Exporter CSV</button>
+    <button id="exportJSON">Exporter JSON</button>
+    <button id="exportMD">Exporter Markdown</button>
+  </div>
+
+  <div class="sidebar-section">
+    <h3>Filtres</h3>
+    <select id="filterType">
+      <option value="all">Tous</option>
+    </select>
+
+    <input id="searchInput" type="text" placeholder="Recherche...">
+  </div>
 </div>
 
-<table id="badgeTable">
-  <thead>
-    <tr>
-      <th onclick="sortTable(0)">Badge</th>
-      <th>Image</th>
-      <th onclick="sortTable(2)">Score</th>
-    </tr>
-  </thead>
-  <tbody id="badgeBody"></tbody>
-</table>
+<!-- Bouton hamburger -->
+<button id="openSidebar" class="hamburger">☰</button>
 
+<!-- ========================= -->
+<!--   CONTENU PRINCIPAL       -->
+<!-- ========================= -->
+<div id="main">
+
+  <h1>Dashboard des Badges</h1>
+
+  <!-- Résumé global -->
+  <div id="summary" class="card">
+    <h2>Résumé global</h2>
+    <div id="total"></div>
+    <div id="completed"></div>
+    <div id="incomplete"></div>
+    <div id="average"></div>
+    <div id="updated"></div>
+  </div>
+
+  <!-- Graphiques -->
+  <div class="charts">
+    <canvas id="chartBars" height="80"></canvas>
+    <canvas id="chartRadar" height="120"></canvas>
+    <canvas id="chartDonut" height="120"></canvas>
+  </div>
+
+  <!-- Mode cartes -->
+  <div id="cardsContainer" class="cards-view"></div>
+
+  <!-- Mode tableau -->
+  <table id="badgeTable" class="table-view hidden">
+    <thead>
+      <tr>
+        <th data-col="type">Badge</th>
+        <th>Image</th>
+        <th data-col="score">Score</th>
+      </tr>
+    </thead>
+    <tbody id="badgeBody"></tbody>
+  </table>
+
+</div>
 <script>
+
+// =======================================
+// UTILITAIRES
+// =======================================
+
+function download(filename, text) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+  a.download = filename;
+  a.click();
+}
+
 function colorForScore(score) {
   if (score >= 90) return "#2ecc71";
   if (score >= 70) return "#f1c40f";
   return "#e74c3c";
 }
+
+// =======================================
+// VARIABLES GLOBALES
+// =======================================
+
+let badgeData = [];
+let currentView = "cards"; 
+let compactMode = false;
+
+// =======================================
+// CHARGEMENT DES BADGES VIA API GITHUB
+// =======================================
 
 async function loadBadges() {
   const repo = "arn51/nouveau_doc";
@@ -57,37 +413,42 @@ async function loadBadges() {
   const files = await response.json();
 
   const jsonFiles = files.filter(f => f.name.endsWith(".json") && f.name.startsWith("tests_"));
-  const svgFiles  = files.filter(f => f.name.endsWith(".svg")  && f.name.startsWith("tests_"));
-
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(files, "text/html");
-
-  const links = [...doc.querySelectorAll("a")].map(a => a.getAttribute("href"));
-  const jsonFiles = links.filter(f => f.endsWith(".json") && f.startsWith("tests_"));
-  const svgFiles = links.filter(f => f.endsWith(".svg") && f.startsWith("tests_"));
 
   let scores = [];
+  let types = new Set();
 
-  for (const json of jsonFiles) {
-    const base = json.replace(".json", "");
+  for (const file of jsonFiles) {
+    const data = await (await fetch(file.download_url)).json();
+
+    if (!data.type) continue;
+
+    const base = file.name.replace(".json", "");
     const svg = base + ".svg";
 
-    const data = await (await fetch(json)).json();
     const score = data.score ?? Math.round((data.success / data.tests) * 100);
 
     scores.push(score);
+    types.add(data.type);
 
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${base}</td>
-      <td><img class="badge-img" src="${svg}"></td>
-      <td><span class="score" style="background:${colorForScore(score)}">${score}%</span></td>
-    `;
-    document.getElementById("badgeBody").appendChild(row);
+    badgeData.push({
+      type: data.type,
+      score,
+      svg
+    });
   }
 
+  scores = scores.filter(s => !isNaN(s));
+
   updateSummary(scores);
+  populateFilters(types);
+  renderCards();
+  renderTable();
+  drawCharts(scores);
 }
+
+// =======================================
+// RÉSUMÉ GLOBAL
+// =======================================
 
 function updateSummary(scores) {
   const total = scores.length;
@@ -102,51 +463,260 @@ function updateSummary(scores) {
   document.getElementById("updated").innerText = `Dernière mise à jour : ${new Date().toLocaleString("fr-FR")}`;
 }
 
-function sortTable(n) {
-  const table = document.getElementById("badgeTable");
-  let switching = true;
-  let dir = "asc";
-  let switchcount = 0;
+// =======================================
+// FILTRES
+// =======================================
 
-  while (switching) {
-    switching = false;
-    const rows = table.rows;
+function populateFilters(types) {
+  const select = document.getElementById("filterType");
+  types.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t;
+    opt.textContent = t;
+    select.appendChild(opt);
+  });
 
-    for (let i = 1; i < rows.length - 1; i++) {
-      let shouldSwitch = false;
-
-      const x = rows[i].getElementsByTagName("td")[n];
-      const y = rows[i + 1].getElementsByTagName("td")[n];
-
-      let cmpX = x.innerText.toLowerCase();
-      let cmpY = y.innerText.toLowerCase();
-
-      if (!isNaN(parseFloat(cmpX))) {
-        cmpX = parseFloat(cmpX);
-        cmpY = parseFloat(cmpY);
-      }
-
-      if ((dir === "asc" && cmpX > cmpY) || (dir === "desc" && cmpX < cmpY)) {
-        shouldSwitch = true;
-        break;
-      }
-    }
-
-    if (shouldSwitch) {
-      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-      switching = true;
-      switchcount++;
-    } else {
-      if (switchcount === 0 && dir === "asc") {
-        dir = "desc";
-        switching = true;
-      }
-    }
-  }
+  select.addEventListener("change", applyFilters);
+  document.getElementById("searchInput").addEventListener("input", applyFilters);
 }
 
-loadBadges();
-</script>
+function applyFilters() {
+  const typeFilter = document.getElementById("filterType").value;
+  const search = document.getElementById("searchInput").value.toLowerCase();
 
+  const filtered = badgeData.filter(b =>
+    (typeFilter === "all" || b.type === typeFilter) &&
+    (b.type.toLowerCase().includes(search) || String(b.score).includes(search))
+  );
+
+  renderCards(filtered);
+  renderTable(filtered);
+}
+
+// =======================================
+// MODE CARTES
+// =======================================
+
+function renderCards(data = badgeData) {
+  const container = document.getElementById("cardsContainer");
+  container.innerHTML = "";
+
+  data.forEach(b => {
+    const card = document.createElement("div");
+    card.className = "card-item";
+
+    card.innerHTML = `
+      <h3>${b.type}</h3>
+      <img src="${b.svg}">
+      <div class="score" style="background:${colorForScore(b.score)}">${b.score}%</div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  if (compactMode) container.classList.add("compact");
+  else container.classList.remove("compact");
+}
+
+// =======================================
+// MODE TABLEAU
+// =======================================
+
+function renderTable(data = badgeData) {
+  const body = document.getElementById("badgeBody");
+  body.innerHTML = "";
+
+  data.forEach(b => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${b.type}</td>
+      <td><img src="${b.svg}" style="max-width:120px"></td>
+      <td>${b.score}%</td>
+    `;
+    body.appendChild(row);
+  });
+}
+
+// =======================================
+// BASCULE CARTES / TABLEAU
+// =======================================
+
+document.getElementById("toggleView").addEventListener("click", () => {
+  currentView = currentView === "cards" ? "table" : "cards";
+
+  document.getElementById("cardsContainer").classList.toggle("hidden");
+  document.getElementById("badgeTable").classList.toggle("hidden");
+});
+
+// =======================================
+// MODE COMPACT
+// =======================================
+
+document.getElementById("toggleCompact").addEventListener("click", () => {
+  compactMode = !compactMode;
+  renderCards();
+});
+
+// =======================================
+// SIDEBAR
+// =======================================
+
+document.getElementById("openSidebar").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.add("open");
+});
+
+document.getElementById("closeSidebar").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.remove("open");
+});
+
+// =======================================
+// THEMES
+// =======================================
+
+document.querySelectorAll(".theme-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const theme = btn.dataset.theme;
+
+    document.body.className = "";
+    if (theme !== "auto") {
+      document.body.classList.add(`theme-${theme}`);
+    }
+
+    localStorage.setItem("theme", theme);
+  });
+});
+
+// Charger thème sauvegardé
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme && savedTheme !== "auto") {
+  document.body.classList.add(`theme-${savedTheme}`);
+}
+
+// =======================================
+// EXPORTS
+// =======================================
+
+document.getElementById("exportCSV").addEventListener("click", () => {
+  let csv = "type,score\n";
+  badgeData.forEach(b => csv += `${b.type},${b.score}\n`);
+  download("badges.csv", csv);
+});
+
+document.getElementById("exportJSON").addEventListener("click", () => {
+  download("badges.json", JSON.stringify(badgeData, null, 2));
+});
+
+document.getElementById("exportMD").addEventListener("click", () => {
+  let md = "# Résultats des badges\n\n| Type | Score |\n|------|-------|\n";
+  badgeData.forEach(b => md += `| ${b.type} | ${b.score}% |\n`);
+  download("badges.md", md);
+});
+
+document.getElementById("exportPDF").addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+
+  const element = document.getElementById("main");
+
+  // Capture haute résolution
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let position = 0;
+
+  // Si le contenu dépasse une page, on ajoute des pages
+  if (imgHeight < pageHeight) {
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  } else {
+    let heightLeft = imgHeight;
+
+    while (heightLeft > 0) {
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      position -= pageHeight;
+
+      if (heightLeft > 0) pdf.addPage();
+    }
+  }
+
+  pdf.save("dashboard_badges.pdf");
+});
+
+// =======================================
+// GRAPHIQUES
+// =======================================
+
+function drawCharts(scores) {
+
+  // Barres
+  new Chart(document.getElementById("chartBars"), {
+    type: "bar",
+    data: {
+      labels: badgeData.map(b => b.type),
+      datasets: [{
+        label: "Score (%)",
+        data: badgeData.map(b => b.score),
+        backgroundColor: badgeData.map(b => colorForScore(b.score))
+      }]
+    },
+    options: { animation: { duration: 800 } }
+  });
+
+  // Radar
+  new Chart(document.getElementById("chartRadar"), {
+    type: "radar",
+    data: {
+      labels: badgeData.map(b => b.type),
+      datasets: [{
+        label: "Score par type",
+        data: badgeData.map(b => b.score),
+        backgroundColor: "rgba(46, 204, 113, 0.3)",
+        borderColor: "#2ecc71",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+
+  // Donut
+  new Chart(document.getElementById("chartDonut"), {
+    type: "doughnut",
+    data: {
+      labels: badgeData.map(b => b.type),
+      datasets: [{
+        data: badgeData.map(b => b.score),
+        backgroundColor: badgeData.map(b => colorForScore(b.score))
+      }]
+    },
+    options: {
+      animation: { duration: 800 }
+    }
+  });
+}
+
+// =======================================
+// LANCEMENT
+// =======================================
+
+loadBadges();
+
+</script>
 </body>
 </html>
