@@ -760,10 +760,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // 7) Footer + pagination
+        const toc = [
+            { title: "Résumé global", page: 2 },
+            { title: "Graphiques", page: 3 },
+            { title: "Cartes", page: 4 },
+            { title: "Tableau", page: 5 }
+        ];
+
         const totalPages = pdf.internal.getNumberOfPages();
 
         for (let i = 1; i <= totalPages; i++) {
             pdf.setPage(i);
+
+            if (i === 1) continue; // pas de filigrane sur le sommaire
 
         // === FILIGRANE IMAGE + TEXTE ===
 
@@ -797,6 +806,25 @@ document.addEventListener("DOMContentLoaded", () => {
             pdf.setFontSize(10);
             pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
         }
+
+        // === INSERTION DU SOMMAIRE EN PAGE 1 ===
+        pdf.insertPage(1);
+        pdf.setPage(1);
+
+        pdf.setFontSize(22);
+        pdf.setTextColor(40);
+        pdf.text("Sommaire", 20, 30);
+
+        pdf.setFontSize(14);
+        pdf.setTextColor(80);
+
+        let y = 60;
+
+        toc.forEach(item => {
+            pdf.textWithLink(item.title, 30, y, { pageNumber: item.page });
+            pdf.text(`${item.page}`, 180, y);
+            y += 12;
+        });
 
         // 8) Sauvegarde
         pdf.save("export.pdf");
