@@ -760,7 +760,7 @@ exportBtn.addEventListener("click", async () => {
 
     const totalPages = pdf.internal.getNumberOfPages();
 
-    // === INSÉRER LE SOMMAIRE EN PAGE 1 ===
+    // === 7) INSÉRER LE SOMMAIRE EN PAGE 1 ===
     pdf.insertPage(1);
     pdf.setPage(1);
 
@@ -786,10 +786,14 @@ exportBtn.addEventListener("click", async () => {
         y += 12;
     });
 
-    for (let i = 1; i <= totalPages; i++) {
+    // === 8) FILIGRANE + FOOTER APRÈS le sommaire ===
+    const finalPages = pdf.internal.getNumberOfPages();
+
+    for (let i = 1; i <= finalPages; i++) {
         pdf.setPage(i);
 
-        // Filigrane
+        if (i === 1) continue; // pas de filigrane sur le sommaire
+
         pdf.setGState(new pdf.GState({ opacity: 0.12 }));
 
         const wmWidth = pageWidth * 0.35;
@@ -806,12 +810,11 @@ exportBtn.addEventListener("click", async () => {
             align: "center"
         });
 
-        pdf.setGState(new pdf.GState({ opacity: 1 }));
+        pdf.setGState({ opacity: 1 });
 
-        // Footer
         pdf.setFontSize(11);
         pdf.setTextColor(120);
-        pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
+        pdf.text(`Page ${i} / ${finalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
 
         pdf.setFontSize(10);
         pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
