@@ -756,7 +756,40 @@ document.addEventListener("DOMContentLoaded", () => {
             heightLeft -= (pageHeight - newPosition - 40);
         }
 
-        // === 7) INSÉRER LE SOMMAIRE EN PAGE 1 ===
+        // === 8) FILIGRANE + FOOTER (APRÈS le sommaire) ===
+        const finalPages = pdf.internal.getNumberOfPages();
+
+        for (let i = 1; i <= finalPages; i++) {
+            pdf.setPage(i);
+
+            if (i === 1) continue;
+
+            pdf.setGState(new pdf.GState({ opacity: 0.12 }));
+
+            const wmWidth = pageWidth * 0.35;
+            const wmHeight = wmWidth;
+            const wmX = (pageWidth - wmWidth) / 2;
+            const wmY = (pageHeight - wmHeight) / 2;
+
+            pdf.addImage(logo, "PNG", wmX, wmY, wmWidth, wmHeight, "", "FAST");
+
+            pdf.setFontSize(48);
+            pdf.setTextColor(150);
+            pdf.text("LJ DASHBOARD", pageWidth / 2, pageHeight / 2 + wmHeight * 0.6, {
+                angle: 45,
+                align: "center"
+            });
+
+            pdf.setGState(new pdf.GState({ opacity: 1 }));
+
+            pdf.setFontSize(11);
+            pdf.setTextColor(120);
+            pdf.text(`Page ${i} / ${finalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
+
+            pdf.setFontSize(10);
+            pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
+        }
+        // === 9) INSÉRER LE SOMMAIRE EN PAGE 1 ===
         pdf.insertPage(1);
         pdf.setPage(1);
 
@@ -777,47 +810,20 @@ document.addEventListener("DOMContentLoaded", () => {
         let y = 60;
 
         toc.forEach(item => {
-            pdf.textWithLink(item.title, 30, y, { pageNumber: item.page });
+            pdf.text(item.title, 30, y);
             pdf.text(`${item.page}`, 180, y);
             y += 12;
         });
 
-        // === 8) FILIGRANE + FOOTER (APRÈS le sommaire) ===
-        const finalPages = pdf.internal.getNumberOfPages();
+            // === 10) AJOUT DES LIENS CLIQUABLES APRÈS FINALISATION ===
+            pdf.setPage(1);
 
-        for (let i = 1; i <= finalPages; i++) {
-            pdf.setPage(i);
+            let linkY = 60;
 
-            // Pas de filigrane sur le sommaire
-            if (i === 1) continue;
-
-            // FILIGRANE IMAGE + TEXTE
-            pdf.setGState(new pdf.GState({ opacity: 0.12 }));
-
-            const wmWidth = pageWidth * 0.35;
-            const wmHeight = wmWidth;
-            const wmX = (pageWidth - wmWidth) / 2;
-            const wmY = (pageHeight - wmHeight) / 2;
-
-            pdf.addImage(logo, "PNG", wmX, wmY, wmWidth, wmHeight, "", "FAST");
-
-            pdf.setFontSize(48);
-            pdf.setTextColor(150);
-            pdf.text("LJ DASHBOARD", pageWidth / 2, pageHeight / 2 + wmHeight * 0.6, {
-                angle: 45,
-                align: "center"
+            toc.forEach(item => {
+                pdf.textWithLink(item.title, 30, linkY, { pageNumber: item.page });
+                linkY += 12;
             });
-
-            pdf.setGState(new pdf.GState({ opacity: 1 }));
-
-            // FOOTER
-            pdf.setFontSize(11);
-            pdf.setTextColor(120);
-            pdf.text(`Page ${i} / ${finalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
-
-            pdf.setFontSize(10);
-            pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
-        }
 
         // === 9) Sauvegarde ===
         pdf.save("export.pdf");
