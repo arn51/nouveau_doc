@@ -756,13 +756,17 @@ document.addEventListener("DOMContentLoaded", () => {
             heightLeft -= (pageHeight - newPosition - 40);
         }
 
-        // === 8) FILIGRANE + FOOTER (APRÈS le sommaire) ===
+        // === 8) FILIGRANE + FOOTER ===
         const finalPages = pdf.internal.getNumberOfPages();
 
         for (let i = 1; i <= finalPages; i++) {
             pdf.setPage(i);
 
-            if (i === 1) continue;
+            // Pas de filigrane sur la future page sommaire
+            // (elle n'existe pas encore)
+            // Donc on met le filigrane partout
+            // et on l'enlèvera ensuite en décalant les pages
+            // → c'est la seule méthode stable avec jsPDF
 
             pdf.setGState(new pdf.GState({ opacity: 0.12 }));
 
@@ -789,6 +793,7 @@ document.addEventListener("DOMContentLoaded", () => {
             pdf.setFontSize(10);
             pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
         }
+
         // === 9) INSÉRER LE SOMMAIRE EN PAGE 1 ===
         pdf.insertPage(1);
         pdf.setPage(1);
@@ -815,15 +820,15 @@ document.addEventListener("DOMContentLoaded", () => {
             y += 12;
         });
 
-            // === 10) AJOUT DES LIENS CLIQUABLES APRÈS FINALISATION ===
-            pdf.setPage(1);
+        // === 10) AJOUT DES LIENS CLIQUABLES ===
+        pdf.setPage(1);
 
-            let linkY = 60;
+        let linkY = 60;
 
-            toc.forEach(item => {
-                pdf.textWithLink(item.title, 30, linkY, { pageNumber: item.page });
-                linkY += 12;
-            });
+        toc.forEach(item => {
+            pdf.textWithLink(item.title, 30, linkY, { pageNumber: item.page });
+            linkY += 12;
+        });
 
         // === 9) Sauvegarde ===
         pdf.save("export.pdf");
