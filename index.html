@@ -772,14 +772,13 @@ document.addEventListener("DOMContentLoaded", () => {
         for (let i = 1; i <= totalPages; i++) {
             pdf.setPage(i);
 
-            if (i === 1) continue; // pas de filigrane sur le sommaire
+            // Pas de filigrane sur le sommaire
+            if (i === 1) continue;
 
-        // === FILIGRANE IMAGE + TEXTE ===
+            // === FILIGRANE IMAGE + TEXTE ===
+            pdf.setGState(new pdf.GState({ opacity: 0.12 }));
 
-        // Opacité réduite pour le filigrane
-           pdf.setGState(new pdf.GState({ opacity: 0.12 }));
-
-        // --- Filigrane image ---
+            // Image
             const wmWidth = pageWidth * 0.35;
             const wmHeight = wmWidth;
             const wmX = (pageWidth - wmWidth) / 2;
@@ -787,18 +786,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
             pdf.addImage(logo, "PNG", wmX, wmY, wmWidth, wmHeight, "", "FAST");
 
-        // --- Filigrane texte ---
+            // Texte
             pdf.setFontSize(48);
             pdf.setTextColor(150);
             pdf.text("LJ DASHBOARD", pageWidth / 2, pageHeight / 2 + wmHeight * 0.6, {
                 angle: 45,
                 align: "center"
-        });
+            });
 
-        // Retour à l’opacité normale
             pdf.setGState(new pdf.GState({ opacity: 1 }));
 
-        // === FOOTER ===
+            // Footer
             pdf.setFontSize(11);
             pdf.setTextColor(120);
             pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 20, { align: "center" });
@@ -807,13 +805,23 @@ document.addEventListener("DOMContentLoaded", () => {
             pdf.text("Document généré avec PDF PRO", pageWidth / 2, pageHeight - 8, { align: "center" });
         }
 
+
         // === INSERTION DU SOMMAIRE EN PAGE 1 ===
         pdf.insertPage(1);
         pdf.setPage(1);
 
+        // Titre
         pdf.setFontSize(22);
         pdf.setTextColor(40);
         pdf.text("Sommaire", 20, 30);
+
+        // Sections (à ajuster après test)
+        const toc = [
+            { title: "Résumé global", page: 2 },
+            { title: "Graphiques", page: 3 },
+            { title: "Cartes", page: 4 },
+            { title: "Tableau", page: 5 }
+        ];
 
         pdf.setFontSize(14);
         pdf.setTextColor(80);
