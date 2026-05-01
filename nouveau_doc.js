@@ -18,8 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Capture d'une section HTML en image et ajout sur une page
-
+    // Capture d'une section HTML en image + découpage multi-pages
     async function addSectionCapture(pdf, element, pageWidth, pageHeight, title) {
         console.log("addSectionCapture →", title, element);
 
@@ -54,13 +53,13 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.setTextColor(20);
         pdf.text(title, marginX, 40);
 
-        // Si l’image tient sur une page → simple
+        // Si l’image tient sur une page
         if (imgHeight <= pageHeight - marginTop - 40) {
             pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
             return;
         }
 
-        // Sinon → découpage multi-pages
+        // Découpage multi-pages
         let remainingHeight = imgHeight;
         let offsetY = 0;
 
@@ -89,9 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Filigrane + footer sur une page
+    // Filigrane + footer
     function addWatermarkAndFooter(pdf, pageWidth, pageHeight, pageNum, totalPages, logo) {
-        // Filigrane image + texte
+
+        // Filigrane image
         if (logo) {
             try {
                 pdf.setGState(new pdf.GState({ opacity: 0.12 }));
@@ -105,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        // Filigrane texte
         pdf.setFontSize(48);
         pdf.setTextColor(150);
         pdf.text(
@@ -114,10 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
             { angle: 45, align: "center" }
         );
 
-        // Retour opacité normale
-        if (pdf.GState) {
-            pdf.setGState(new pdf.GState({ opacity: 1 }));
-        }
+        if (pdf.GState) pdf.setGState(new pdf.GState({ opacity: 1 }));
 
         // Footer
         pdf.setFontSize(11);
@@ -164,22 +162,21 @@ document.addEventListener("DOMContentLoaded", () => {
         await new Promise(resolve => {
             logo.onload = resolve;
             logo.onerror = () => {
-                console.warn("Logo non chargé, filigrane image désactivé.");
+                console.warn("Logo non chargé.");
                 resolve();
             };
         });
 
-        // Attendre les graphiques
         await waitForCharts();
 
-        // Récupération des éléments HTML
+        // Sections HTML
         const summaryEl = document.getElementById("summary");
         const chartsEl = document.querySelector(".charts");
         const cardsEl = document.getElementById("cardsContainer");
         const tableEl = document.getElementById("badgeTable");
 
         // =========================
-        // 1) PAGE DE GARDE (NATIVE)
+        // 1) PAGE DE GARDE
         // =========================
         pdf.setFontSize(24);
         pdf.setTextColor(20);
@@ -201,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         // =========================
-        // 2) PAGE SOMMAIRE (NATIVE)
+        // 2) SOMMAIRE
         // =========================
         pdf.addPage();
         const tocPageIndex = pdf.internal.getNumberOfPages();
@@ -213,7 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.setFontSize(13);
         pdf.setTextColor(60);
 
-        // On écrira les numéros de pages plus tard
         const tocLines = [
             { label: "1. Résumé global", key: "resume" },
             { label: "2. Graphiques", key: "charts" },
@@ -225,12 +221,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const tocLineHeight = 24;
 
         tocLines.forEach((item, index) => {
-            const y = tocStartY + index * tocLineHeight;
-            pdf.text(item.label, 60, y);
+            pdf.text(item.label, 60, tocStartY + index * tocLineHeight);
         });
 
         // =========================
-        // 3) PAGE RÉSUMÉ GLOBAL (NATIVE)
+        // 3) RÉSUMÉ GLOBAL (NATIF)
         // =========================
         pdf.addPage();
         const resumePageIndex = pdf.internal.getNumberOfPages();
@@ -264,21 +259,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // =========================
-        // 4) PAGE GRAPHIQUES (CAPTURE)
+        // 4) GRAPHIQUES
         // =========================
         pdf.addPage();
         const chartsPageIndex = pdf.internal.getNumberOfPages();
         await addSectionCapture(pdf, chartsEl, pageWidth, pageHeight, "Graphiques");
 
         // =========================
-        // 5) PAGE VUE CARTES (CAPTURE)
+        // 5) VUE CARTES
         // =========================
         pdf.addPage();
         const cardsPageIndex = pdf.internal.getNumberOfPages();
         await addSectionCapture(pdf, cardsEl, pageWidth, pageHeight, "Vue cartes");
 
         // =========================
-        // 6) PAGE TABLEAU (CAPTURE)
+        // 6) TABLEAU DES BADGES
         // =========================
         pdf.addPage();
         const tablePageIndex = pdf.internal.getNumberOfPages();
