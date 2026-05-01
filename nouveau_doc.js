@@ -1,3 +1,23 @@
+document.addEventListener("DOMContentLoaded", () => {
+
+    const exportBtn = document.getElementById("exportPDF");
+
+    if (!exportBtn) {
+        console.error("Le bouton exportPDF est introuvable !");
+        return;
+    }
+
+    // Fonction PRO : attendre que Chart.js ait fini son rendu
+    function waitForCharts() {
+        return new Promise(resolve => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    setTimeout(resolve, 100);
+                });
+            });
+        });
+    }
+
     exportBtn.addEventListener("click", async () => {
 
         console.log("exportPDF cliqué");
@@ -113,3 +133,4 @@
         // 8) Sauvegarde
         pdf.save("export.pdf");
     });
+});
