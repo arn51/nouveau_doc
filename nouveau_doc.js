@@ -48,23 +48,31 @@ document.addEventListener("DOMContentLoaded", () => {
         const maxWidth = pageWidth - marginX * 2;
         const imgHeight = canvas.height * (maxWidth / canvas.width);
 
-        // Titre
-        pdf.setFontSize(18);
-        pdf.setTextColor(20);
-        pdf.text(title, marginX, 40);
+        const availableHeight = pageHeight - marginTop - 40;
 
-        // Si l’image tient sur une page
-        if (imgHeight <= pageHeight - marginTop - 40) {
+        // Fonction pour dessiner le titre
+        const drawTitle = () => {
+            pdf.setFontSize(18);
+            pdf.setTextColor(20);
+            pdf.text(title, marginX, 40);
+        };
+
+        // 🔥 Correction : si l'image dépasse de moins de 120 px → UNE SEULE PAGE
+        if (imgHeight <= availableHeight + 120) {
+            drawTitle();
             pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
             return;
         }
 
-        // Découpage multi-pages
+        // Sinon → découpage multi-pages normal
         let remainingHeight = imgHeight;
         let offsetY = 0;
 
         while (remainingHeight > 0) {
-            const sliceHeight = Math.min(remainingHeight, pageHeight - marginTop - 40);
+
+            drawTitle();
+
+            const sliceHeight = Math.min(remainingHeight, availableHeight);
 
             pdf.addImage(
                 imgData,
