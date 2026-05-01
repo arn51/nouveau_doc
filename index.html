@@ -224,6 +224,33 @@ h1 {
   padding: 10px;
 }
 
+.mini-cards-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    font-size: 14px;
+}
+
+.mini-cards-table th,
+.mini-cards-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.mini-bar {
+    width: 100%;
+    height: 10px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.mini-fill {
+    height: 100%;
+    background: #2ecc71;
+}
+  
 /* ========================= */
 /*   Hedader + Footer (PDF)  */
 /* ========================= */
@@ -398,8 +425,96 @@ canvas {
     <canvas id="chartDonut" height="120"></canvas>
   </div>
 
-  <!-- Mode cartes -->
-  <div id="cardsContainer" class="cards-view"></div>
+<table id="cardsContainer" class="mini-cards-table">
+    <thead>
+        <tr>
+            <th>Badge</th>
+            <th>Progression</th>
+            <th>Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>bug</td>
+            <td>
+                <div class="mini-bar">
+                    <div class="mini-fill" style="width:100%"></div>
+                </div>
+            </td>
+            <td>100%</td>
+        </tr>
+
+        <tr>
+            <td>general</td>
+            <td>
+                <div class="mini-bar">
+                    <div class="mini-fill" style="width:100%"></div>
+                </div>
+            </td>
+            <td>100%</td>
+        </tr>
+
+        <tr>
+            <td>idee</td>
+            <td>
+                <div class="mini-bar">
+                    <div class="mini-fill" style="width:100%"></div>
+                </div>
+            </td>
+            <td>100%</td>
+        </tr>
+
+        <tr>
+            <td>journal</td>
+            <td>
+                <div class="mini-bar">
+                    <div class="mini-fill" style="width:100%"></div>
+                </div>
+            </td>
+            <td>100%</td>
+        </tr>
+
+        <tr>
+            <td>meeting</td>
+            <td>
+                <div class="mini-bar">
+                    <div class="mini-fill" style="width:100%"></div>
+                </div>
+            </td>
+            <td>100%</td>
+        </tr>
+
+        <tr>
+            <td>projet</td>
+            <td>
+                <div class="mini-bar">
+                    <div class="mini-fill" style="width:100%"></div>
+                </div>
+            </td>
+            <td>100%</td>
+        </tr>
+
+        <tr>
+            <td>technique</td>
+            <td>
+                <div class="mini-bar">
+                    <div class="mini-fill" style="width:100%"></div>
+                </div>
+            </td>
+            <td>100%</td>
+        </tr>
+
+        <tr>
+            <td>todo</td>
+            <td>
+                <div class="mini-bar">
+                    <div class="mini-fill" style="width:100%"></div>
+                </div>
+            </td>
+            <td>100%</td>
+        </tr>
+    </tbody>
+</table>
 
   <!-- Mode tableau -->
   <table id="badgeTable" class="table-view hidden">
