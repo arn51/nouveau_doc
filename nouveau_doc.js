@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Capture d'une section HTML en image + découpage multi-pages
     async function addSectionCapture(pdf, element, pageWidth, pageHeight, title) {
+        console.log("Hauteur réelle section", title, element.offsetHeight);
+        console.log("Hauteur scroll", element.scrollHeight);
+        console.log("Hauteur client", element.clientHeight);
         console.log("addSectionCapture →", title, element);
 
         if (!element) {
