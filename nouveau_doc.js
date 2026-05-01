@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Capture d'une section HTML en image et ajout sur une page
     async function addSectionCapture(pdf, element, pageWidth, pageHeight, title) {
+        console.log("addSectionCapture →", title, element);
+        
         if (!element) {
             console.warn(`Section manquante pour : ${title}`);
             return;
