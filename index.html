@@ -666,28 +666,6 @@ document.getElementById("exportMD").addEventListener("click", () => {
   download("badges.md", md);
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-
-    const exportBtn = document.getElementById("exportPDF");
-
-    if (!exportBtn) {
-        console.error("Le bouton exportPDF est introuvable !");
-        return;
-    }
-
-    // Fonction PRO : attendre que Chart.js ait fini son rendu
-    function waitForCharts() {
-        return new Promise(resolve => {
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    setTimeout(resolve, 100);
-                });
-            });
-        });
-    }
-
-});
-
 // =======================================
 // GRAPHIQUES
 // =======================================
