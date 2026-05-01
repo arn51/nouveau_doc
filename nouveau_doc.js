@@ -19,14 +19,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Capture d'une section HTML en image et ajout sur une page
+
     async function addSectionCapture(pdf, element, pageWidth, pageHeight, title) {
         console.log("addSectionCapture →", title, element);
-        
+
         if (!element) {
             console.warn(`Section manquante pour : ${title}`);
             return;
         }
 
+        // Forcer visibilité
+        const previousDisplay = element.style.display;
+        element.style.display = "block";
+
+        // Capture
         const canvas = await html2canvas(element, {
             scale: 2,
             useCORS: true,
@@ -34,26 +40,53 @@ document.addEventListener("DOMContentLoaded", () => {
             windowHeight: document.documentElement.clientHeight
         });
 
+        element.style.display = previousDisplay;
+
         const imgData = canvas.toDataURL("image/png");
+
         const marginX = 30;
         const marginTop = 70;
         const maxWidth = pageWidth - marginX * 2;
         const imgHeight = canvas.height * (maxWidth / canvas.width);
 
+        // Titre
         pdf.setFontSize(18);
         pdf.setTextColor(20);
         pdf.text(title, marginX, 40);
 
-        pdf.addImage(
-            imgData,
-            "PNG",
-            marginX,
-            marginTop,
-            maxWidth,
-            imgHeight,
-            "",
-            "FAST"
-        );
+        // Si l’image tient sur une page → simple
+        if (imgHeight <= pageHeight - marginTop - 40) {
+            pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
+            return;
+        }
+
+        // Sinon → découpage multi-pages
+        let remainingHeight = imgHeight;
+        let offsetY = 0;
+
+        while (remainingHeight > 0) {
+            const sliceHeight = Math.min(remainingHeight, pageHeight - marginTop - 40);
+
+            pdf.addImage(
+                imgData,
+                "PNG",
+                marginX,
+                marginTop,
+                maxWidth,
+                imgHeight,
+                "",
+                "FAST",
+                0,
+                offsetY
+            );
+
+            remainingHeight -= sliceHeight;
+            offsetY += sliceHeight;
+
+            if (remainingHeight > 0) {
+                pdf.addPage();
+            }
+        }
     }
 
     // Filigrane + footer sur une page
