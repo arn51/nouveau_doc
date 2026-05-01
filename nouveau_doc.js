@@ -98,7 +98,7 @@ async function captureSection(pdf, element, pageWidth, pageHeight, title) {
 
         // Logo
         const logo = new Image();
-        logo.src = "assets/logo.png"; // adapte le chemin si besoin
+        logo.src = "https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png"; // adapte le chemin si besoin
 
         await new Promise(resolve => {
             logo.onload = resolve;
