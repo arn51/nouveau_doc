@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // Attendre que Chart.js ait fini son rendu
     function waitForCharts() {
         return new Promise(resolve => {
             requestAnimationFrame(() => {
@@ -18,25 +17,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Capture d'une section HTML en image + découpage multi-pages
     async function addSectionCapture(pdf, element, pageWidth, pageHeight, title) {
-        console.log("Hauteur réelle section", title, element.offsetHeight);
-        console.log("Hauteur scroll", element.scrollHeight);
-        console.log("Hauteur client", element.clientHeight);
-        console.log("addSectionCapture →", title, element);
 
         if (!element) {
             console.warn(`Section manquante pour : ${title}`);
             return;
         }
 
-        // Forcer visibilité
         const previousDisplay = element.style.display;
         element.style.display = "block";
 
-        // Capture
         const canvas = await html2canvas(element, {
-            scale: 1.4, // 🔥 scale réduit = image plus petite = plus de pages fantômes
+            scale: 1.4,
             useCORS: true,
             windowWidth: document.documentElement.clientWidth,
             windowHeight: document.documentElement.clientHeight
@@ -53,22 +45,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const availableHeight = pageHeight - marginTop - 40;
 
-        // Fonction pour dessiner le titre
         const drawTitle = () => {
             pdf.setFontSize(18);
             pdf.setTextColor(20);
             pdf.text(title, marginX, 40);
         };
 
-        // 🔥 Correction définitive :
-        // Si l'image dépasse de moins de 250 px → UNE SEULE PAGE
-        if (imgHeight <= availableHeight + 250) {
+        // 🔥 Le tableau compact tient sur une seule page → UNE SEULE PAGE
+        if (imgHeight <= availableHeight) {
             drawTitle();
             pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
             return;
         }
 
-        // Sinon → découpage multi-pages
+        // Découpage si nécessaire (rare)
         let remainingHeight = imgHeight;
         let offsetY = 0;
 
@@ -100,10 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Filigrane + footer
     function addWatermarkAndFooter(pdf, pageWidth, pageHeight, pageNum, totalPages, logo) {
 
-        // Filigrane image
         if (logo) {
             try {
                 pdf.setGState(new pdf.GState({ opacity: 0.12 }));
@@ -112,12 +100,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const wmX = (pageWidth - wmWidth) / 2;
                 const wmY = (pageHeight - wmHeight) / 2;
                 pdf.addImage(logo, "PNG", wmX, wmY, wmWidth, wmHeight, "", "FAST");
-            } catch (e) {
-                console.warn("Filigrane image non appliqué :", e);
-            }
+            } catch (e) {}
         }
 
-        // Filigrane texte
         pdf.setFontSize(48);
         pdf.setTextColor(150);
         pdf.text(
@@ -129,7 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (pdf.GState) pdf.setGState(new pdf.GState({ opacity: 1 }));
 
-        // Footer
         pdf.setFontSize(11);
         pdf.setTextColor(120);
         pdf.text(
@@ -149,12 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     exportBtn.addEventListener("click", async () => {
-        console.log("exportPDF cliqué");
-
-        if (!window.jspdf) {
-            console.error("jsPDF n'est pas chargé !");
-            return;
-        }
 
         const { jsPDF } = window.jspdf;
 
@@ -167,29 +145,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
 
-        // Logo
         const logo = new Image();
         logo.src = "/nouveau_doc/assets/logo.png";
 
         await new Promise(resolve => {
             logo.onload = resolve;
-            logo.onerror = () => {
-                console.warn("Logo non chargé.");
-                resolve();
-            };
+            logo.onerror = resolve;
         });
 
         await waitForCharts();
 
-        // Sections HTML
         const summaryEl = document.getElementById("summary");
         const chartsEl = document.querySelector(".charts");
         const cardsEl = document.getElementById("cardsContainer");
         const tableEl = document.getElementById("badgeTable");
 
-        // =========================
-        // 1) PAGE DE GARDE
-        // =========================
+        // PAGE DE GARDE
         pdf.setFontSize(24);
         pdf.setTextColor(20);
 
@@ -209,18 +180,12 @@ document.addEventListener("DOMContentLoaded", () => {
             150
         );
 
-        // =========================
-        // 2) SOMMAIRE
-        // =========================
+        // SOMMAIRE
         pdf.addPage();
         const tocPageIndex = pdf.internal.getNumberOfPages();
 
         pdf.setFontSize(20);
-        pdf.setTextColor(20);
         pdf.text("Sommaire", 40, 60);
-
-        pdf.setFontSize(13);
-        pdf.setTextColor(60);
 
         const tocLines = [
             { label: "1. Résumé global", key: "resume" },
@@ -233,21 +198,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const tocLineHeight = 24;
 
         tocLines.forEach((item, index) => {
+            pdf.setFontSize(13);
             pdf.text(item.label, 60, tocStartY + index * tocLineHeight);
         });
 
-        // =========================
-        // 3) RÉSUMÉ GLOBAL (NATIF)
-        // =========================
+        // RÉSUMÉ GLOBAL
         pdf.addPage();
         const resumePageIndex = pdf.internal.getNumberOfPages();
 
         pdf.setFontSize(18);
-        pdf.setTextColor(20);
         pdf.text("Résumé global", 40, 60);
-
-        pdf.setFontSize(13);
-        pdf.setTextColor(40);
 
         const getText = (id) => {
             const el = document.getElementById(id);
@@ -263,42 +223,31 @@ document.addEventListener("DOMContentLoaded", () => {
         ].filter(Boolean);
 
         let resumeY = 100;
-        const resumeLineHeight = 22;
-
         resumeLines.forEach(line => {
+            pdf.setFontSize(13);
             pdf.text(line, 60, resumeY);
-            resumeY += resumeLineHeight;
+            resumeY += 22;
         });
 
-        // =========================
-        // 4) GRAPHIQUES
-        // =========================
+        // GRAPHIQUES
         pdf.addPage();
         const chartsPageIndex = pdf.internal.getNumberOfPages();
         await addSectionCapture(pdf, chartsEl, pageWidth, pageHeight, "Graphiques");
 
-        // =========================
-        // 5) VUE CARTES
-        // =========================
+        // VUE CARTES (mini-cards compactes)
         pdf.addPage();
         const cardsPageIndex = pdf.internal.getNumberOfPages();
         await addSectionCapture(pdf, cardsEl, pageWidth, pageHeight, "Vue cartes");
 
-        // =========================
-        // 6) TABLEAU DES BADGES
-        // =========================
+        // TABLEAU DES BADGES
         pdf.addPage();
         const tablePageIndex = pdf.internal.getNumberOfPages();
         await addSectionCapture(pdf, tableEl, pageWidth, pageHeight, "Tableau des badges");
 
-        // =========================
-        // 7) COMPLÉTER LE SOMMAIRE
-        // =========================
+        // SOMMAIRE FINAL
         const totalPages = pdf.internal.getNumberOfPages();
 
         pdf.setPage(tocPageIndex);
-        pdf.setFontSize(13);
-        pdf.setTextColor(60);
 
         const pageMap = {
             resume: resumePageIndex,
@@ -317,17 +266,12 @@ document.addEventListener("DOMContentLoaded", () => {
             pdf.text(`... ${pageNum}`, 60 + textWidth + 10, y);
         });
 
-        // =========================
-        // 8) FILIGRANE + FOOTER
-        // =========================
+        // FILIGRANE + FOOTER
         for (let i = 1; i <= totalPages; i++) {
             pdf.setPage(i);
             addWatermarkAndFooter(pdf, pageWidth, pageHeight, i, totalPages, logo.complete ? logo : null);
         }
 
-        // =========================
-        // 9) SAUVEGARDE
-        // =========================
         pdf.save("export.pdf");
     });
 });
