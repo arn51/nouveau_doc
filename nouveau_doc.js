@@ -15,77 +15,28 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-    async function captureSection(pdf, element, pageWidth, pageHeight, title) {
-        if (!element) {
-            console.warn("Section introuvable pour :", title);
-            return;
-        }
+async function captureSection(pdf, element, pageWidth, pageHeight, title) {
 
-        const prevDisplay = element.style.display;
-        if (getComputedStyle(element).display === "none") {
-            element.style.display = "block";
-        }
+    const canvas = await html2canvas(element, {
+        scale: 1.4,
+        useCORS: true
+    });
 
-        const canvas = await html2canvas(element, {
-            scale: 1.4,
-            useCORS: true,
-            windowWidth: document.documentElement.clientWidth,
-            windowHeight: document.documentElement.clientHeight
-        });
+    const imgData = canvas.toDataURL("image/png");
 
-        element.style.display = prevDisplay;
+    const marginX = 30;
+    const marginTop = 70;
+    const maxWidth = pageWidth - marginX * 2;
+    const imgHeight = canvas.height * (maxWidth / canvas.width);
 
-        const imgData = canvas.toDataURL("image/png");
+    // Titre
+    pdf.setFontSize(18);
+    pdf.setTextColor(20);
+    pdf.text(title, marginX, 40);
 
-        const marginX = 30;
-        const marginTop = 70;
-        const maxWidth = pageWidth - marginX * 2;
-        const imgHeight = canvas.height * (maxWidth / canvas.width);
-        const availableHeight = pageHeight - marginTop - 40;
-
-        const drawTitle = () => {
-            pdf.setFontSize(18);
-            pdf.setTextColor(20);
-            pdf.text(title, marginX, 40);
-        };
-
-        // Cas normal : la section tient sur une page
-        if (imgHeight <= availableHeight) {
-            drawTitle();
-            pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
-            return;
-        }
-
-        // Découpage si vraiment trop grand (sécurité)
-        let remainingHeight = imgHeight;
-        let offsetY = 0;
-
-        while (remainingHeight > 0) {
-            drawTitle();
-
-            const sliceHeight = Math.min(remainingHeight, availableHeight);
-
-            pdf.addImage(
-                imgData,
-                "PNG",
-                marginX,
-                marginTop,
-                maxWidth,
-                imgHeight,
-                "",
-                "FAST",
-                0,
-                offsetY
-            );
-
-            remainingHeight -= sliceHeight;
-            offsetY += sliceHeight;
-
-            if (remainingHeight > 0) {
-                pdf.addPage();
-            }
-        }
-    }
+    // UNE SEULE PAGE, PAS DE DÉCOUPAGE
+    pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
+}
 
     function addWatermarkAndFooter(pdf, pageWidth, pageHeight, pageNum, totalPages, logoImg) {
         try {
