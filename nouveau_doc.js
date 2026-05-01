@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Capture
         const canvas = await html2canvas(element, {
-            scale: 2,
+            scale: 1.4, // 🔥 scale réduit = image plus petite = plus de pages fantômes
             useCORS: true,
             windowWidth: document.documentElement.clientWidth,
             windowHeight: document.documentElement.clientHeight
@@ -57,14 +57,15 @@ document.addEventListener("DOMContentLoaded", () => {
             pdf.text(title, marginX, 40);
         };
 
-        // 🔥 Correction : si l'image dépasse de moins de 120 px → UNE SEULE PAGE
-        if (imgHeight <= availableHeight + 120) {
+        // 🔥 Correction définitive :
+        // Si l'image dépasse de moins de 250 px → UNE SEULE PAGE
+        if (imgHeight <= availableHeight + 250) {
             drawTitle();
             pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
             return;
         }
 
-        // Sinon → découpage multi-pages normal
+        // Sinon → découpage multi-pages
         let remainingHeight = imgHeight;
         let offsetY = 0;
 
