@@ -1,31 +1,30 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     const exportBtn = document.getElementById("exportPDF");
 
     if (!exportBtn) {
-        console.error("Le bouton exportPDF est introuvable !");
+        console.error("Bouton #exportPDF introuvable");
         return;
     }
 
-    function waitForCharts() {
-        return new Promise(resolve => {
+    const waitForCharts = () =>
+        new Promise(resolve => {
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    setTimeout(resolve, 100);
+                    setTimeout(resolve, 150);
                 });
             });
         });
-    }
 
-    async function addSectionCapture(pdf, element, pageWidth, pageHeight, title) {
-
+    async function captureSection(pdf, element, pageWidth, pageHeight, title) {
         if (!element) {
-            console.warn(`Section manquante pour : ${title}`);
+            console.warn("Section introuvable pour :", title);
             return;
         }
 
-        const previousDisplay = element.style.display;
-        element.style.display = "block";
+        const prevDisplay = element.style.display;
+        if (getComputedStyle(element).display === "none") {
+            element.style.display = "block";
+        }
 
         const canvas = await html2canvas(element, {
             scale: 1.4,
@@ -34,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
             windowHeight: document.documentElement.clientHeight
         });
 
-        element.style.display = previousDisplay;
+        element.style.display = prevDisplay;
 
         const imgData = canvas.toDataURL("image/png");
 
@@ -42,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const marginTop = 70;
         const maxWidth = pageWidth - marginX * 2;
         const imgHeight = canvas.height * (maxWidth / canvas.width);
-
         const availableHeight = pageHeight - marginTop - 40;
 
         const drawTitle = () => {
@@ -51,19 +49,18 @@ document.addEventListener("DOMContentLoaded", () => {
             pdf.text(title, marginX, 40);
         };
 
-        // 🔥 Le tableau compact tient sur une seule page → UNE SEULE PAGE
+        // Cas normal : la section tient sur une page
         if (imgHeight <= availableHeight) {
             drawTitle();
             pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
             return;
         }
 
-        // Découpage si nécessaire (rare)
+        // Découpage si vraiment trop grand (sécurité)
         let remainingHeight = imgHeight;
         let offsetY = 0;
 
         while (remainingHeight > 0) {
-
             drawTitle();
 
             const sliceHeight = Math.min(remainingHeight, availableHeight);
@@ -90,29 +87,33 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function addWatermarkAndFooter(pdf, pageWidth, pageHeight, pageNum, totalPages, logo) {
-
-        if (logo) {
-            try {
-                pdf.setGState(new pdf.GState({ opacity: 0.12 }));
+    function addWatermarkAndFooter(pdf, pageWidth, pageHeight, pageNum, totalPages, logoImg) {
+        try {
+            if (logoImg) {
+                const g = new pdf.GState({ opacity: 0.12 });
+                pdf.setGState(g);
                 const wmWidth = pageWidth * 0.35;
                 const wmHeight = wmWidth;
                 const wmX = (pageWidth - wmWidth) / 2;
                 const wmY = (pageHeight - wmHeight) / 2;
-                pdf.addImage(logo, "PNG", wmX, wmY, wmWidth, wmHeight, "", "FAST");
-            } catch (e) {}
+                pdf.addImage(logoImg, "PNG", wmX, wmY, wmWidth, wmHeight, "", "FAST");
+            }
+
+            pdf.setFontSize(48);
+            pdf.setTextColor(150);
+            pdf.text(
+                "LJ DASHBOARD",
+                pageWidth / 2,
+                pageHeight / 2 + 40,
+                { angle: 45, align: "center" }
+            );
+
+            if (pdf.GState) {
+                pdf.setGState(new pdf.GState({ opacity: 1 }));
+            }
+        } catch (e) {
+            console.warn("Filigrane : problème mineur", e);
         }
-
-        pdf.setFontSize(48);
-        pdf.setTextColor(150);
-        pdf.text(
-            "LJ DASHBOARD",
-            pageWidth / 2,
-            pageHeight / 2 + 40,
-            { angle: 45, align: "center" }
-        );
-
-        if (pdf.GState) pdf.setGState(new pdf.GState({ opacity: 1 }));
 
         pdf.setFontSize(11);
         pdf.setTextColor(120);
@@ -125,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         pdf.setFontSize(10);
         pdf.text(
-            "Document généré avec PDF PRO",
+            "Document généré avec le Dashboard LJ",
             pageWidth / 2,
             pageHeight - 8,
             { align: "center" }
@@ -133,7 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     exportBtn.addEventListener("click", async () => {
-
         const { jsPDF } = window.jspdf;
 
         const pdf = new jsPDF({
@@ -145,8 +145,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
 
+        // Logo
         const logo = new Image();
-        logo.src = "/nouveau_doc/assets/logo.png";
+        logo.src = "assets/logo.png"; // adapte le chemin si besoin
 
         await new Promise(resolve => {
             logo.onload = resolve;
@@ -157,18 +158,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const summaryEl = document.getElementById("summary");
         const chartsEl = document.querySelector(".charts");
-        const cardsEl = document.getElementById("cardsContainer");
+        const cardsEl = document.getElementById("cardsContainer"); // mini-cards-grid
         const tableEl = document.getElementById("badgeTable");
 
         // PAGE DE GARDE
         pdf.setFontSize(24);
         pdf.setTextColor(20);
 
-        if (logo.complete) {
+        if (logo.complete && logo.naturalWidth > 0) {
             pdf.addImage(logo, "PNG", 40, 40, 80, 80);
         }
 
-        pdf.text("Analyse des Badges — Avril 2026", 140, 80);
+        pdf.text("Analyse des Badges", 140, 80);
         pdf.setFontSize(14);
         pdf.setTextColor(80);
         pdf.text("Généré automatiquement depuis le Dashboard LJ", 140, 105);
@@ -180,11 +181,12 @@ document.addEventListener("DOMContentLoaded", () => {
             150
         );
 
-        // SOMMAIRE
+        // SOMMAIRE (page réservée)
         pdf.addPage();
         const tocPageIndex = pdf.internal.getNumberOfPages();
 
         pdf.setFontSize(20);
+        pdf.setTextColor(20);
         pdf.text("Sommaire", 40, 60);
 
         const tocLines = [
@@ -194,11 +196,12 @@ document.addEventListener("DOMContentLoaded", () => {
             { label: "4. Tableau des badges", key: "table" }
         ];
 
-        let tocStartY = 100;
+        const tocStartY = 100;
         const tocLineHeight = 24;
 
         tocLines.forEach((item, index) => {
             pdf.setFontSize(13);
+            pdf.setTextColor(40);
             pdf.text(item.label, 60, tocStartY + index * tocLineHeight);
         });
 
@@ -207,6 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const resumePageIndex = pdf.internal.getNumberOfPages();
 
         pdf.setFontSize(18);
+        pdf.setTextColor(20);
         pdf.text("Résumé global", 40, 60);
 
         const getText = (id) => {
@@ -223,8 +227,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ].filter(Boolean);
 
         let resumeY = 100;
+        pdf.setFontSize(13);
+        pdf.setTextColor(40);
         resumeLines.forEach(line => {
-            pdf.setFontSize(13);
             pdf.text(line, 60, resumeY);
             resumeY += 22;
         });
@@ -232,23 +237,20 @@ document.addEventListener("DOMContentLoaded", () => {
         // GRAPHIQUES
         pdf.addPage();
         const chartsPageIndex = pdf.internal.getNumberOfPages();
-        await addSectionCapture(pdf, chartsEl, pageWidth, pageHeight, "Graphiques");
+        await captureSection(pdf, chartsEl, pageWidth, pageHeight, "Graphiques");
 
-        // VUE CARTES (mini-cards compactes)
+        // VUE CARTES (mini-cards-grid → UNE SEULE PAGE normalement)
         pdf.addPage();
         const cardsPageIndex = pdf.internal.getNumberOfPages();
-        await addSectionCapture(pdf, cardsEl, pageWidth, pageHeight, "Vue cartes");
+        await captureSection(pdf, cardsEl, pageWidth, pageHeight, "Vue cartes");
 
         // TABLEAU DES BADGES
         pdf.addPage();
         const tablePageIndex = pdf.internal.getNumberOfPages();
-        await addSectionCapture(pdf, tableEl, pageWidth, pageHeight, "Tableau des badges");
+        await captureSection(pdf, tableEl, pageWidth, pageHeight, "Tableau des badges");
 
-        // SOMMAIRE FINAL
+        // MISE À JOUR DU SOMMAIRE
         const totalPages = pdf.internal.getNumberOfPages();
-
-        pdf.setPage(tocPageIndex);
-
         const pageMap = {
             resume: resumePageIndex,
             charts: chartsPageIndex,
@@ -256,20 +258,35 @@ document.addEventListener("DOMContentLoaded", () => {
             table: tablePageIndex
         };
 
+        pdf.setPage(tocPageIndex);
+        pdf.setFontSize(20);
+        pdf.setTextColor(20);
+        pdf.text("Sommaire", 40, 60);
+
+        pdf.setFontSize(13);
+        pdf.setTextColor(40);
+
         tocLines.forEach((item, index) => {
             const y = tocStartY + index * tocLineHeight;
-            const pageNum = pageMap[item.key];
             const label = item.label;
+            const pageNum = pageMap[item.key];
             const textWidth = pdf.getTextWidth(label);
 
             pdf.text(label, 60, y);
             pdf.text(`... ${pageNum}`, 60 + textWidth + 10, y);
         });
 
-        // FILIGRANE + FOOTER
+        // FILIGRANE + FOOTER SUR TOUTES LES PAGES
         for (let i = 1; i <= totalPages; i++) {
             pdf.setPage(i);
-            addWatermarkAndFooter(pdf, pageWidth, pageHeight, i, totalPages, logo.complete ? logo : null);
+            addWatermarkAndFooter(
+                pdf,
+                pageWidth,
+                pageHeight,
+                i,
+                totalPages,
+                (logo.complete && logo.naturalWidth > 0) ? logo : null
+            );
         }
 
         pdf.save("export.pdf");
