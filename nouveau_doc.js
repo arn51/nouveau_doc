@@ -60,13 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.text(title, marginX, 40);
 
         console.log(imgData);
-        if (!imgData.startsWith("data:image/jpeg")) {
-            console.error("image invalide !");
-        }
-        
-        if (!imgData.includes("iVBOR")) {
-            console.error("Ce n'est probablement pas un vrai PNG");
-        }
         
         pdf.addImage(imgData, "JPEG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
     }
