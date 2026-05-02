@@ -40,24 +40,33 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        // 🔥 Scale équilibré selon la section
+        let scale = 1.0;
+        if (title === "Graphiques") scale = 0.95;
+        if (title === "Vue cartes") scale = 0.85;
+        if (title === "Tableau des badges") scale = 0.90;
+        
         const canvas = await html2canvas(element, {
             scale: 1.0,
             useCORS: true,
-
             // 🔥 Correction clé : ignorer toutes les images (SVG, PNG, etc.)
             ignoreElements: (el) => el.tagName === "IMG"
         });
 
         const imgData = canvas.toDataURL("image/jpeg", 0.9);
 
-        const marginX = 30;
-        const marginTop = 70;
+        const marginX = 40;
+        const marginTop = 110;
         const maxWidth = pageWidth - marginX * 2;
         const imgHeight = canvas.height * (maxWidth / canvas.width);
 
+        // 🔥 Hauteur max pour éviter les débordements
+        const maxHeight = pageHeight - 180;
+        if (imgHeight > maxHeight) imgHeight = maxHeight;
+        
         pdf.setFontSize(18);
         pdf.setTextColor(20);
-        pdf.text(title, marginX, 40);
+        pdf.text(title, marginX, 60);
 
         console.log(imgData);
         
