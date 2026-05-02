@@ -59,6 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.setTextColor(20);
         pdf.text(title, marginX, 40);
 
+        console.log(imgData);
+        if (!imgData.starsWith("data:image/png") {
+            console.error("image invalide !");
+        }
+        
         pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
     }
 
