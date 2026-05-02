@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Convertit un PNG en DataURL lisible par jsPDF
     async function loadImageAsDataURL(path) {
         try {
             const blob = await fetch(path).then(r => r.blob());
@@ -32,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Capture simple → UNE SEULE PAGE
+    // 🔥 VERSION ÉQUILIBRÉE
     async function captureSection(pdf, element, pageWidth, pageHeight, title) {
 
         if (!element) {
@@ -42,9 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Scale équilibré selon la section
         let scale = 1.0;
-        if (title === "Graphiques") scale = 0.95;
-        if (title === "Vue cartes") scale = 0.85;
-        if (title === "Tableau des badges") scale = 0.90;
+        if (title === "Graphiques") scale = 1.0;
+        if (title === "Vue cartes") scale = 0.95;
+        if (title === "Tableau des badges") scale = 1.0;
 
         const canvas = await html2canvas(element, {
             scale: scale,
@@ -57,10 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const marginTop = 110;
         const maxWidth = pageWidth - marginX * 2;
 
-        // 🔥 imgHeight doit être en let, pas const
         let imgHeight = canvas.height * (maxWidth / canvas.width);
 
-        // Hauteur max pour éviter les débordements
         const maxHeight = pageHeight - 180;
         if (imgHeight > maxHeight) imgHeight = maxHeight;
 
@@ -220,10 +217,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // TABLEAU DES BADGES
         pdf.addPage();
         const tablePageIndex = pdf.internal.getNumberOfPages();
-        
+
         // 👉 Rendre visible avant capture
         tableEl.classList.remove("hidden");
-        
+
         await captureSection(pdf, tableEl, pageWidth, pageHeight, "Tableau des badges");
 
         // 👉 Re-masquer après capture
