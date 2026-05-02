@@ -199,17 +199,17 @@ document.addEventListener("DOMContentLoaded", () => {
         // GRAPHIQUES
         pdf.addPage();
         const chartsPageIndex = pdf.internal.getNumberOfPages();
-        //await captureSection(pdf, chartsEl, pageWidth, pageHeight, "Graphiques");
+        // await captureSection(pdf, chartsEl, pageWidth, pageHeight, "Graphiques");
 
         // VUE CARTES
         pdf.addPage();
         const cardsPageIndex = pdf.internal.getNumberOfPages();
-        //await captureSection(pdf, cardsEl, pageWidth, pageHeight, "Vue cartes");
+        // await captureSection(pdf, cardsEl, pageWidth, pageHeight, "Vue cartes");
 
         // TABLEAU DES BADGES
         pdf.addPage();
         const tablePageIndex = pdf.internal.getNumberOfPages();
-        await captureSection(pdf, tableEl, pageWidth, pageHeight, "Tableau des badges");
+        // await captureSection(pdf, tableEl, pageWidth, pageHeight, "Tableau des badges");
 
         // MISE À JOUR DU SOMMAIRE
         const totalPages = pdf.internal.getNumberOfPages();
