@@ -42,7 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const canvas = await html2canvas(element, {
             scale: 1.4,
-            useCORS: true
+            useCORS: true,
+
+            // 🔥 Correction clé : ignorer toutes les images (SVG, PNG, etc.)
+            ignoreElements: (el) => el.tagName === "IMG"
         });
 
         const imgData = canvas.toDataURL("image/png");
@@ -117,7 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
 
-        // 🔥 CHARGEMENT LOGO EN DATAURL (FINI LES ERREURS PNG)
         const logoData = await loadImageAsDataURL("assets/logo.png");
 
         await waitForCharts();
