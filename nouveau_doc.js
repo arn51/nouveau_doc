@@ -48,8 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const canvas = await html2canvas(element, {
             scale: scale,
-            useCORS: true,
-            ignoreElements: (el) => el.tagName === "IMG"
+            useCORS: true
         });
 
         const imgData = canvas.toDataURL("image/jpeg", 0.92);
