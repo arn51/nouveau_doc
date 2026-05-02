@@ -41,14 +41,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const canvas = await html2canvas(element, {
-            scale: 1.4,
+            scale: 1.0,
             useCORS: true,
 
             // 🔥 Correction clé : ignorer toutes les images (SVG, PNG, etc.)
             ignoreElements: (el) => el.tagName === "IMG"
         });
 
-        const imgData = canvas.toDataURL("image/png");
+        const imgData = canvas.toDataURL("image/jpeg", 0.9);
 
         const marginX = 30;
         const marginTop = 70;
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Ce n'est probablement pas un vrai PNG");
         }
         
-        pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
+        pdf.addImage(imgData, "JPEG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
     }
 
     function addWatermarkAndFooter(pdf, pageWidth, pageHeight, pageNum, totalPages, logoData) {
