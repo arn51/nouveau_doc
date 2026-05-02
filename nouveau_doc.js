@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // GRAPHIQUES
         pdf.addPage();
         const chartsPageIndex = pdf.internal.getNumberOfPages();
-        await captureSection(pdf, chartsEl, pageWidth, pageHeight, "Graphiques");
+        //await captureSection(pdf, chartsEl, pageWidth, pageHeight, "Graphiques");
 
         // VUE CARTES
         pdf.addPage();
