@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // VUE CARTES
         pdf.addPage();
         const cardsPageIndex = pdf.internal.getNumberOfPages();
-        await captureSection(pdf, cardsEl, pageWidth, pageHeight, "Vue cartes");
+        //await captureSection(pdf, cardsEl, pageWidth, pageHeight, "Vue cartes");
 
         // TABLEAU DES BADGES
         pdf.addPage();
