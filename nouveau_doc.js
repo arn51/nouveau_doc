@@ -213,7 +213,14 @@ document.addEventListener("DOMContentLoaded", () => {
         // TABLEAU DES BADGES
         pdf.addPage();
         const tablePageIndex = pdf.internal.getNumberOfPages();
+        
+        // 👉 Rendre visible avant capture
+        tableEl.classList.remove("hidden");
+        
         await captureSection(pdf, tableEl, pageWidth, pageHeight, "Tableau des badges");
+
+        // 👉 Re-masquer après capture
+        tableEl.classList.add("hidden");
 
         // MISE À JOUR DU SOMMAIRE
         const totalPages = pdf.internal.getNumberOfPages();
