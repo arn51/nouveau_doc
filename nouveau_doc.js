@@ -59,8 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.setTextColor(20);
         pdf.text(title, marginX, 40);
 
-        console.log(imgData.substring(0, 50));
-        if (!imgData.startsWith("data:image/png")) {
+        console.log(imgData);
+        if (!imgData.startsWith("data:image/jpeg")) {
             console.error("image invalide !");
         }
         
