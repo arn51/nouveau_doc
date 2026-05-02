@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.text(title, marginX, 40);
 
         console.log(imgData);
-        if (!imgData.starsWith("data:image/png")) {
+        if (!imgData.startsWith("data:image/png")) {
             console.error("image invalide !");
         }
         
