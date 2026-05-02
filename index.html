@@ -180,6 +180,19 @@ h1 {
 /* ========================= */
 /*   CARTES                  */
 /* ========================= */
+#cardsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.badge-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
 
 .cards-view {
   display: grid;
