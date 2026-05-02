@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // TABLEAU DES BADGES
         pdf.addPage();
         const tablePageIndex = pdf.internal.getNumberOfPages();
-        // await captureSection(pdf, tableEl, pageWidth, pageHeight, "Tableau des badges");
+        await captureSection(pdf, tableEl, pageWidth, pageHeight, "Tableau des badges");
 
         // MISE À JOUR DU SOMMAIRE
         const totalPages = pdf.internal.getNumberOfPages();
