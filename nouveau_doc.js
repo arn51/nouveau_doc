@@ -39,11 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Scale équilibré selon la section
+        // 🔥 Scale final équilibré + améliorations demandées
         let scale = 1.0;
-        if (title === "Graphiques") scale = 1.25;
-        if (title === "Vue cartes") scale = 0.95;
-        if (title === "Tableau des badges") scale = 1.15;
+
+        if (title === "Graphiques") scale = 1.35;          // ➜ Graphiques plus grands
+        if (title === "Vue cartes") scale = 0.95;          // ➜ Déjà OK
+        if (title === "Tableau des badges") scale = 1.25;  // ➜ Tableau plus lisible
 
         const canvas = await html2canvas(element, {
             scale: scale,
@@ -58,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let imgHeight = canvas.height * (maxWidth / canvas.width);
 
+        // 🔥 Limite de hauteur pour éviter débordement
         const maxHeight = pageHeight - 180;
         if (imgHeight > maxHeight) imgHeight = maxHeight;
 
