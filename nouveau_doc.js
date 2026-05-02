@@ -229,14 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tableEl.classList.add("hidden");
 
         // MISE À JOUR DU SOMMAIRE
-        const totalPages = pdf.internal.getNumberOfPages();
-        const pageMap = {
-            resume: resumePageIndex,
-            charts: chartsPageIndex,
-            cards: cardsPageIndex,
-            table: tablePageIndex
-        };
-
+        // MISE À JOUR DU SOMMAIRE (CLICABLE)
         pdf.setPage(tocPageIndex);
         pdf.setFontSize(20);
         pdf.text("Sommaire", 40, 60);
@@ -247,11 +240,26 @@ document.addEventListener("DOMContentLoaded", () => {
             const y = tocStartY + index * tocLineHeight;
             const label = item.label;
             const pageNum = pageMap[item.key];
+
+            // Affichage du texte
+            pdf.text(label, 60, y);
+
+            // Largeur du texte pour créer la zone cliquable
             const textWidth = pdf.getTextWidth(label);
 
-            pdf.text(label, 60, y);
+            // 🔥 Zone cliquable
+            pdf.link(
+                60,               // x
+                y - 10,           // y (un peu au-dessus du texte)
+                textWidth + 4,    // largeur
+                14,               // hauteur
+                { pageNumber: pageNum }
+            );
+
+            // Numéro de page affiché
             pdf.text(`... ${pageNum}`, 60 + textWidth + 10, y);
         });
+
 
         // FILIGRANE + FOOTER
         for (let i = 1; i <= totalPages; i++) {
