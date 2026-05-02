@@ -59,9 +59,13 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.setTextColor(20);
         pdf.text(title, marginX, 40);
 
-        console.log(imgData);
+        console.log(imgData.substring(0, 50));
         if (!imgData.startsWith("data:image/png")) {
             console.error("image invalide !");
+        }
+        
+        if (!imgData.includes("iVBOR")) {
+            console.error("Ce n'est probablement pas un vrai PNG");
         }
         
         pdf.addImage(imgData, "PNG", marginX, marginTop, maxWidth, imgHeight, "", "FAST");
