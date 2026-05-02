@@ -41,9 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Scale équilibré selon la section
         let scale = 1.0;
-        if (title === "Graphiques") scale = 1.0;
+        if (title === "Graphiques") scale = 1.25;
         if (title === "Vue cartes") scale = 0.95;
-        if (title === "Tableau des badges") scale = 1.0;
+        if (title === "Tableau des badges") scale = 1.15;
 
         const canvas = await html2canvas(element, {
             scale: scale,
