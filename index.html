@@ -351,9 +351,11 @@ h1 {
 
 .charts {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr !important;
   gap: 30px;
   padding: 20px;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 canvas {
@@ -374,8 +376,16 @@ canvas {
   max-width: 100% !important;
 }
 
+/* Chaque graphique prend toute la largeur */
 .charts canvas {
-  aspect-ratio: 1.6 / 1 !important; /* format paysage */
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  aspect-ratio: 1.6 / 1 !important; /* format paysage équilibré */
+  background: var(--card);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px var(--shadow);
 }
 
 /* ========================= */
