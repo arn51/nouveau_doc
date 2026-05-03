@@ -161,6 +161,13 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.addPage();
         const tocPageIndex = pdf.internal.getNumberOfPages();
 
+        const pageMap = {
+            resume: resumePageIndex,
+            charts: chartsPageIndex,
+            cards: cardsPageIndex,
+            table: tablePageIndex
+        };
+
         pdf.setFontSize(20);
         pdf.text("Sommaire", 40, 60);
 
@@ -228,7 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // 👉 Re-masquer après capture
         tableEl.classList.add("hidden");
 
-        // MISE À JOUR DU SOMMAIRE
         // MISE À JOUR DU SOMMAIRE (CLICABLE)
         pdf.setPage(tocPageIndex);
         pdf.setFontSize(20);
