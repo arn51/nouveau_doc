@@ -168,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.addPage();
         const tocPageIndex = pdf.internal.getNumberOfPages();
         pdf.setFontSize(20);
-        pdf.text("Sommaire", 40, 60);
 
         const tocLines = [
             { label: "1. Résumé global", key: "resume" },
