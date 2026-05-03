@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
             pdf.setFontSize(48);
             pdf.setTextColor(150);
             pdf.text(
-                "LJ DASHBOARD",
+                "SYNOPTIQUE",
                 pageWidth / 2,
                 pageHeight / 2 + 40,
                 { angle: 45, align: "center" }
@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         pdf.setFontSize(10);
         pdf.text(
-            "Document généré avec le Dashboard LJ",
+            "Document généré avec le Tableau de bord de LJ",
             pageWidth / 2,
             pageHeight - 8,
             { align: "center" }
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.text("Analyse des Badges", 140, 80);
         pdf.setFontSize(14);
         pdf.setTextColor(80);
-        pdf.text("Généré automatiquement depuis le Dashboard LJ", 140, 105);
+        pdf.text("Généré automatiquement depuis le Tableau de bord de LJ", 140, 105);
 
         pdf.setFontSize(12);
         pdf.text(
