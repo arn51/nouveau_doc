@@ -164,6 +164,10 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.setFontSize(12);
         pdf.text("Document généré avec le Dashboard LJ", pageWidth / 2, 370, { align: "center" });
 
+        // SOMMAIRE
+        pdf.addPage();
+        const tocPageIndex = pdf.internal.getNumberOfPages();
+       
         // RÉSUMÉ GLOBAL
         pdf.addPage();
         const resumePageIndex = pdf.internal.getNumberOfPages();
