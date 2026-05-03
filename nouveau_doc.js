@@ -138,24 +138,31 @@ document.addEventListener("DOMContentLoaded", () => {
         const tableEl = document.getElementById("badgeTable");
 
         // PAGE DE GARDE
-        pdf.setFontSize(24);
+        pdf.setFontSize(32);
         pdf.setTextColor(20);
+        pdf.text("Analyse des Badges", pageWidth / 2, 120, { align: "center" });
 
+        pdf.setFontSize(16);
+        pdf.setTextColor(90);
+        pdf.text("Rapport généré automatiquement", pageWidth / 2, 150, { align: "center" });
+
+        // Ligne de séparation
+        pdf.setDrawColor(180);
+        pdf.setLineWidth(1);
+        pdf.line(80, 170, pageWidth - 80, 170);
+
+        // Logo centré
         if (logoData) {
-            pdf.addImage(logoData, "PNG", 40, 40, 80, 80);
+            pdf.addImage(logoData, "PNG", pageWidth / 2 - 50, 200, 100, 100);
         }
 
-        pdf.text("Analyse des Badges", 140, 80);
+        // Informations
         pdf.setFontSize(14);
-        pdf.setTextColor(80);
-        pdf.text("Généré automatiquement depuis le Tableau de bord", 140, 105);
+        pdf.setTextColor(60);
+        pdf.text(`Date : ${new Date().toLocaleDateString("fr-FR")}`, pageWidth / 2, 340, { align: "center" });
 
         pdf.setFontSize(12);
-        pdf.text(
-            `Date de génération : ${new Date().toLocaleString()}`,
-            40,
-            150
-        );
+        pdf.text("Document généré avec le Dashboard LJ", pageWidth / 2, 370, { align: "center" });
 
         // SOMMAIRE
         pdf.addPage();
