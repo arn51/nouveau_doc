@@ -368,6 +368,16 @@ canvas {
     max-width: 100%;
 }
 
+canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+}
+
+.charts canvas {
+  aspect-ratio: 1.6 / 1 !important; /* format paysage */
+}
+
 /* ========================= */
 /*   RESPONSIVE              */
 /* ========================= */
@@ -452,9 +462,9 @@ canvas {
 
   <!-- Graphiques -->
   <div class="charts">
-    <canvas id="chartBars" height="80"></canvas>
-    <canvas id="chartRadar" height="120"></canvas>
-    <canvas id="chartDonut" height="120"></canvas>
+    <canvas id="chartBars"></canvas>
+    <canvas id="chartRadar"></canvas>
+    <canvas id="chartDonut"></canvas>
   </div>
 
 <div id="cardsContainer" class="mini-cards-grid">
