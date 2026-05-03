@@ -164,28 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.setFontSize(12);
         pdf.text("Document généré avec le Dashboard LJ", pageWidth / 2, 370, { align: "center" });
 
-        // SOMMAIRE
-        pdf.addPage();
-        const tocPageIndex = pdf.internal.getNumberOfPages();
-
-        pdf.setFontSize(20);
-        pdf.text("Sommaire", 40, 60);
-
-        const tocLines = [
-            { label: "1. Résumé global", key: "resume" },
-            { label: "2. Graphiques", key: "charts" },
-            { label: "3. Vue cartes", key: "cards" },
-            { label: "4. Tableau des badges", key: "table" }
-        ];
-
-        const tocStartY = 100;
-        const tocLineHeight = 24;
-
-        tocLines.forEach((item, index) => {
-            pdf.setFontSize(13);
-            pdf.text(item.label, 60, tocStartY + index * tocLineHeight);
-        });
-
         // RÉSUMÉ GLOBAL
         pdf.addPage();
         const resumePageIndex = pdf.internal.getNumberOfPages();
