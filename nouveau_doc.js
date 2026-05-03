@@ -248,36 +248,52 @@ document.addEventListener("DOMContentLoaded", () => {
         tableEl.classList.add("hidden");
 
         // MISE À JOUR DU SOMMAIRE (CLICABLE)
+        // SOMMAIRE STYLISÉ AVEC LIGNES POINTILLÉES
         pdf.setPage(tocPageIndex);
-        pdf.setFontSize(20);
+        pdf.setFontSize(26);
+        pdf.setTextColor(20);
         pdf.text("Sommaire", 40, 60);
 
-        pdf.setFontSize(13);
+        pdf.setFontSize(14);
+        pdf.setTextColor(40);
+
+        const startX = 60;
+        const endX = pageWidth - 60;
+        const dotSpacing = 3;
 
         tocLines.forEach((item, index) => {
             const y = tocStartY + index * tocLineHeight;
             const label = item.label;
             const pageNum = pageMap[item.key];
 
-            // Affichage du texte
-            pdf.text(label, 60, y);
+            // 1) Titre
+            pdf.text(label, startX, y);
 
-            // Largeur du texte pour créer la zone cliquable
+            // 2) Largeur du texte
             const textWidth = pdf.getTextWidth(label);
 
-            // 🔥 Zone cliquable
+            // 3) Position de départ des pointillés
+            const dotsStart = startX + textWidth + 5;
+
+            // 4) Tracé des pointillés
+            let x = dotsStart;
+            while (x < endX - 20) {
+                pdf.text(".", x, y);
+                x += dotSpacing;
+            }
+
+            // 5) Numéro de page aligné à droite
+            pdf.text(String(pageNum), endX, y, { align: "right" });
+
+            // 6) Zone cliquable
             pdf.link(
-                60,               // x
-                y - 10,           // y (un peu au-dessus du texte)
-                textWidth + 4,    // largeur
-                14,               // hauteur
+                startX,
+                y - 10,
+                endX - startX,
+                14,
                 { pageNumber: pageNum }
             );
-
-            // Numéro de page affiché
-            pdf.text(`... ${pageNum}`, 60 + textWidth + 10, y);
         });
-
 
         // FILIGRANE + FOOTER
         for (let i = 1; i <= totalPages; i++) {
