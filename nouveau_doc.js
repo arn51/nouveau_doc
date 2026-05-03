@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const maxHeight = pageHeight - 180;
         if (imgHeight > maxHeight) imgHeight = maxHeight;
 
-        pdf.setFontSize(18);
+        pdf.setFontSize(26);
         pdf.setTextColor(20);
         pdf.text(title, marginX, 60);
 
