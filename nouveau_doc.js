@@ -39,12 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // 🔥 Scale final équilibré + améliorations demandées
+        // 🔥 Scale final équilibré
         let scale = 1.0;
 
-        if (title === "Graphiques") scale = 1.00;          // ➜ Graphiques plus grands
+        if (title === "Graphiques") scale = 1.35;          // ➜ Graphiques plus grands
         if (title === "Vue cartes") scale = 0.95;          // ➜ Déjà OK
-        if (title === "Tableau des badges") scale = 1.00;  // ➜ Tableau plus lisible
+        if (title === "Tableau des badges") scale = 1.35;  // ➜ Tableau plus lisible
 
         const canvas = await html2canvas(element, {
             scale: scale,
