@@ -161,13 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.addPage();
         const tocPageIndex = pdf.internal.getNumberOfPages();
 
-        const pageMap = {
-            resume: resumePageIndex,
-            charts: chartsPageIndex,
-            cards: cardsPageIndex,
-            table: tablePageIndex
-        };
-
         pdf.setFontSize(20);
         pdf.text("Sommaire", 40, 60);
 
@@ -226,6 +219,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // TABLEAU DES BADGES
         pdf.addPage();
         const tablePageIndex = pdf.internal.getNumberOfPages();
+
+        const pageMap = {
+            resume: resumePageIndex,
+            charts: chartsPageIndex,
+            cards: cardsPageIndex,
+            table: tablePageIndex
+        };
 
         // 👉 Rendre visible avant capture
         tableEl.classList.remove("hidden");
