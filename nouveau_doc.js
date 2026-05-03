@@ -167,6 +167,18 @@ document.addEventListener("DOMContentLoaded", () => {
         // SOMMAIRE
         pdf.addPage();
         const tocPageIndex = pdf.internal.getNumberOfPages();
+        pdf.setFontSize(20);
+        pdf.text("Sommaire", 40, 60);
+
+        const tocLines = [
+            { label: "1. Résumé global", key: "resume" },
+            { label: "2. Graphiques", key: "charts" },
+            { label: "3. Vue cartes", key: "cards" },
+            { label: "4. Tableau des badges", key: "table" }
+        ];
+
+        const tocStartY = 100;
+        const tocLineHeight = 24;
        
         // RÉSUMÉ GLOBAL
         pdf.addPage();
