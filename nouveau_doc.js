@@ -220,6 +220,11 @@ document.addEventListener("DOMContentLoaded", () => {
         pdf.addPage();
         const tablePageIndex = pdf.internal.getNumberOfPages();
 
+        // On calcule le nombre total de pages
+        const totalPages = pdf.internal.getNumberOfPages();
+
+        // On crée pageMap IMMÉDIATEMENT après
+
         const pageMap = {
             resume: resumePageIndex,
             charts: chartsPageIndex,
