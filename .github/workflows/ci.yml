@@ -1,19 +1,22 @@
-name: Validation des documents
+name: Validation + Déploiement (Optimisé 2026)
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 on:
   push:
-    branches: [ main, gh-pages ]
-  pull_request:
+    branches:
+      - main
+      - gh-pages
+  workflow_dispatch:
 
 jobs:
   validate:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Récupération du dépôt
       - name: Checkout du dépôt
         uses: actions/checkout@v4
 
@@ -23,11 +26,9 @@ jobs:
       - name: Définir NOUVEAU_DOC_ROOT
         run: echo "NOUVEAU_DOC_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
 
-      # 2) Installation des dépendances
       - name: Installer jq
         run: sudo apt-get install -y jq
 
-      # 3) Donner les droits d'exécution
       - name: Rendre les scripts exécutables
         run: chmod +x validate_all_multi.sh
 
@@ -39,30 +40,20 @@ jobs:
           ls -R rules
           ls -R rules_engine
 
-      # 4) Exécuter la validation complète
       - name: Exécuter validate_all_multi.sh (rapport complet)
         id: validation
         env:
           NOUVEAU_DOC_ROOT: ${{ github.workspace }}
-        run: |
-          ./validate_all_multi.sh --ci-report-all
+        run: ./validate_all_multi.sh --ci-report-all
 
       - name: Générer le badge global
         run: ./validate_all_multi.sh --ci-badge-auto
-
-      - name: Debug badges globaux
-        run: |
-          echo "Contenu du dossier courant :"
-          ls -l .
-          echo "Recherche des badges :"
-          find . -name "tests_badge*"
 
       - name: Générer les badges par type
         run: ./validate_all_multi.sh --ci-badges-per-type
         continue-on-error: true
 
-      # 5) Ajouter le résumé Markdown dans l’onglet Summary
-      - name: Ajouter résumé Markdown
+      - name: Résumé Markdown
         if: always()
         run: |
           echo "## Résultats des tests" >> $GITHUB_STEP_SUMMARY
@@ -72,8 +63,7 @@ jobs:
             echo "**Aucun fichier report.md généré.**" >> $GITHUB_STEP_SUMMARY
           fi
 
-      # 6) Upload des artefacts (rapports + badges)
-      - name: Upload des rapports
+      - name: Upload des artefacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -87,13 +77,12 @@ jobs:
             tests_*.json
           if-no-files-found: warn
 
-      # 7) Échec du job si la validation échoue
       - name: Vérifier le statut final
         if: steps.validation.outcome == 'failure'
         run: exit 1
 
-  publish-badge:
-    needs: [validate]
+  publish:
+    needs: validate
     runs-on: ubuntu-latest
 
     steps:
@@ -117,166 +106,11 @@ jobs:
           cp tests_*.json public/ || true
           cp report.* public/ || true
 
-      - name: Générer index.html (dashboard complet)
-        run: |
-          cat << 'EOF' > public/index.html
-          <!DOCTYPE html>
-          <html lang="fr">
-          <head>
-          <meta charset="UTF-8">
-          <title>Dashboard des Badges</title>
-          <style>
-            body { font-family: Arial; margin: 40px; background: #f5f5f5; }
-            h1 { text-align: center; margin-bottom: 10px; }
-            #summary { background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-            #summary h2 { margin-top: 0; }
-            #summary .item { margin: 6px 0; font-size: 16px; }
-            table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
-            th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
-            th { background: #333; color: white; cursor: pointer; }
-            tr:hover { background: #f0f0f0; }
-            .badge-img { max-width: 180px; }
-            .score { font-weight: bold; padding: 6px 12px; border-radius: 6px; color: white; }
-          </style>
-          </head>
-          <body>
-
-          <h1>Dashboard des Badges</h1>
-
-          <div id="summary">
-            <h2>Résumé global</h2>
-            <div class="item" id="total"></div>
-            <div class="item" id="completed"></div>
-            <div class="item" id="incomplete"></div>
-            <div class="item" id="average"></div>
-            <div class="item" id="updated"></div>
-          </div>
-
-          <table id="badgeTable">
-            <thead>
-              <tr>
-                <th onclick="sortTable(0)">Badge</th>
-                <th>Image</th>
-                <th onclick="sortTable(2)">Score</th>
-              </tr>
-            </thead>
-            <tbody id="badgeBody"></tbody>
-          </table>
-
-          <script>
-          function colorForScore(score) {
-            if (score >= 90) return "#2ecc71";
-            if (score >= 70) return "#f1c40f";
-            return "#e74c3c";
-          }
-
-          async function loadBadges() {
-            const repo = "arn51/nouveau_doc";
-            const branch = "gh-pages";
-
-            const apiUrl = `https://api.github.com/repos/${repo}/contents/?ref=${branch}`;
-            const response = await fetch(apiUrl);
-            const files = await response.json();
-
-            const jsonFiles = files.filter(f => f.name.endsWith(".json") && f.name.startsWith("tests_"));
-            const svgFiles  = files.filter(f => f.name.endsWith(".svg")  && f.name.startsWith("tests_"));
-
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(files, "text/html");
-
-            const links = [...doc.querySelectorAll("a")].map(a => a.getAttribute("href"));
-            const jsonFiles = links.filter(f => f.endsWith(".json") && f.startsWith("tests_"));
-            const svgFiles = links.filter(f => f.endsWith(".svg") && f.startsWith("tests_"));
-
-            let scores = [];
-
-            for (const json of jsonFiles) {
-              const base = json.replace(".json", "");
-              const svg = base + ".svg";
-
-              const data = await (await fetch(json)).json();
-              const score = data.score ?? Math.round((data.success / data.tests) * 100);
-
-              scores.push(score);
-
-              const row = document.createElement("tr");
-              row.innerHTML = `
-                <td>${base}</td>
-                <td><img class="badge-img" src="${svg}"></td>
-                <td><span class="score" style="background:${colorForScore(score)}">${score}%</span></td>
-              `;
-              document.getElementById("badgeBody").appendChild(row);
-            }
-
-            updateSummary(scores);
-          }
-
-          function updateSummary(scores) {
-            const total = scores.length;
-            const completed = scores.filter(s => s === 100).length;
-            const incomplete = total - completed;
-            const average = total > 0 ? (scores.reduce((a,b) => a+b, 0) / total).toFixed(2) : 0;
-
-            document.getElementById("total").innerText = `Nombre total de badges : ${total}`;
-            document.getElementById("completed").innerText = `Badges à 100% : ${completed}`;
-            document.getElementById("incomplete").innerText = `Badges incomplets : ${incomplete}`;
-            document.getElementById("average").innerText = `Score moyen : ${average}%`;
-            document.getElementById("updated").innerText = `Dernière mise à jour : ${new Date().toLocaleString("fr-FR")}`;
-          }
-
-          function sortTable(n) {
-            const table = document.getElementById("badgeTable");
-            let switching = true;
-            let dir = "asc";
-            let switchcount = 0;
-
-            while (switching) {
-              switching = false;
-              const rows = table.rows;
-
-              for (let i = 1; i < rows.length - 1; i++) {
-                let shouldSwitch = false;
-
-                const x = rows[i].getElementsByTagName("td")[n];
-                const y = rows[i + 1].getElementsByTagName("td")[n];
-
-                let cmpX = x.innerText.toLowerCase();
-                let cmpY = y.innerText.toLowerCase();
-
-                if (!isNaN(parseFloat(cmpX))) {
-                  cmpX = parseFloat(cmpX);
-                  cmpY = parseFloat(cmpY);
-                }
-
-                if ((dir === "asc" && cmpX > cmpY) || (dir === "desc" && cmpX < cmpY)) {
-                  shouldSwitch = true;
-                  break;
-                }
-              }
-
-              if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-                switchcount++;
-              } else {
-                if (switchcount === 0 && dir === "asc") {
-                  dir = "desc";
-                  switching = true;
-                }
-              }
-            }
-          }
-
-          loadBadges();
-          </script>
-
-          </body>
-          </html>
-          EOF
+      - name: Générer index.html
+        run: ./generate_dashboard.sh
 
       - name: Déployer sur GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
-
