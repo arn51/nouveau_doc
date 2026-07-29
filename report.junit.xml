@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite tests="8" failures="0">
+<testcase name="Bug automatique"/>
+<testcase name="Document général automatique"/>
+<testcase name="Idée automatique"/>
+<testcase name="Journal automatique"/>
+<testcase name="Réunion automatique"/>
+<testcase name="Projet automatique"/>
+<testcase name="Note technique automatique"/>
+<testcase name="Liste TODO automatique"/>
+</testsuite>

@@ -1,0 +1,65 @@
+[{
+  "title": "Bug automatique",
+  "doc_type": "bug",
+  "profile": "travail",
+  "category": "bug",
+  "template": "template_bug",
+  "status": "OK",
+  "errors": []
+},{
+  "title": "Document général automatique",
+  "doc_type": "general",
+  "profile": "perso",
+  "category": "general",
+  "template": "template_general",
+  "status": "OK",
+  "errors": []
+},{
+  "title": "Idée automatique",
+  "doc_type": "idee",
+  "profile": "perso",
+  "category": "idee",
+  "template": "template_idee",
+  "status": "OK",
+  "errors": []
+},{
+  "title": "Journal automatique",
+  "doc_type": "journal",
+  "profile": "perso",
+  "category": "journal",
+  "template": "template_journal",
+  "status": "OK",
+  "errors": []
+},{
+  "title": "Réunion automatique",
+  "doc_type": "meeting",
+  "profile": "travail",
+  "category": "meeting",
+  "template": "template_meeting",
+  "status": "OK",
+  "errors": []
+},{
+  "title": "Projet automatique",
+  "doc_type": "projet",
+  "profile": "travail",
+  "category": "projet",
+  "template": "template_projet",
+  "status": "OK",
+  "errors": []
+},{
+  "title": "Note technique automatique",
+  "doc_type": "technique",
+  "profile": "travail",
+  "category": "technique",
+  "template": "template_technique",
+  "status": "OK",
+  "errors": []
+},{
+  "title": "Liste TODO automatique",
+  "doc_type": "general",
+  "profile": "perso",
+  "category": "general",
+  "template": "template_general",
+  "status": "OK",
+  "errors": []
+}]
